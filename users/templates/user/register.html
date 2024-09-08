@@ -1,0 +1,100 @@
+{% extends "layouts/base_full.html" %}
+{% block header %}
+<title>CPM Signup</title>
+{% endblock %}
+{% load static %}
+
+{% block style %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+{% endblock %}
+{% block content %}
+
+<section class="cklsign" style="width: calc(8px* 75);">
+    <div class="pklsi">
+        <div class="iopsi">
+            <header class="uiopj">
+                <div title="HashiCorp" id="custom-prompt-logo"></div>
+                <a href="javascript:void(0)">
+                    <img alt="..." src="{% static 'assets/img/audien_logo_black.png' %}" class="interblockchainlogo" style="width: 60%; padding-bottom: 15px;" />
+                </a>
+                <h1 class="c3fa29956 c926e5028">Enter Your Details</h1>
+            </header>
+            <div class="c439d90a0 c37cd0ac8">
+                <form method="POST" action="{% url 'register' %}" class="signupForm hidden-logged-in signupForm-homepage-center">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-md-6 form-group">
+                            <input type="text" name="{{ form.first_name.name }}" class="textinput textInput form-control" 
+                            placeholder="First Name" />
+                            {% if form.first_name.errors %}
+                            <span class="text-danger">{{ form.first_name.errors }}</span>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <input type="text" name="{{ form.last_name.name }}" class="textinput textInput form-control" 
+                            placeholder="Last Name"/>
+                            {% if form.last_name.errors %}
+                            <span class="text-danger">{{ form.last_name.errors }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" name="{{ form.username.name }}" class="textinput textInput form-control" 
+                        placeholder="User Name"/>
+                        {% if form.username.errors %}
+                        <span class="text-danger">{{ form.username.errors }}</span>
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        <input type="email" name="{{ form.email.name }}" class="textinput textInput form-control" 
+                        placeholder="Email Address"/>
+                        {% if form.email.errors %}
+                        <span class="text-danger">{{ form.email.errors }}</span>
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        <input type="tel" name="{{ form.phone.name }}" class="textinput textInput form-control"
+                        placeholder="Phone Number"/>
+                        <span class="text-danger">{{ form.phone.errors }}</span>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" id="dob_input" name="{{ form.date_of_birth.name }}" class="textinput textInput form-control"
+                        placeholder="Date Of Birth"/>
+                        <span class="text-danger">{{ form.date_of_birth.errors }}</span>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" name="{{ form.address.name }}" class="textinput textInput form-control"
+                        placeholder="Address"/>
+                        <span class="text-danger">{{ form.address.errors }}</span>
+                    </div>
+                    <div class="form-group">
+                        <input type="password" name="{{ form.password1.name }}" class="textinput textInput form-control" 
+                         placeholder="Password"/>
+                        <span class="text-danger">{{ form.password1.errors }}</span>
+                    </div>
+                    <div class="form-group">
+                        <input type="password" name="{{ form.password2.name }}" class="textinput textInput form-control"  
+                        placeholder="Re-Type Password"/>
+                        <span class="text-danger">{{ form.password2.errors }}</span>
+                    </div>
+
+                    <button type="submit" class="btn btn-dark">Submit</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+</section>
+{% endblock %}
+
+{% block script %}
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script>
+    flatpickr("#dob_input", {
+        dateFormat: "Y-m-d",
+        altInput: true,
+        altFormat: "F j, Y",
+        placeholder: "Date Of Birth"
+    });
+</script>
+{% endblock %}

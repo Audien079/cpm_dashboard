@@ -1,0 +1,58 @@
+{% extends "layouts/base_full.html" %}
+{% block header %}
+<title>CPM Questionare</title>
+{% endblock %}
+{% load static %}
+
+{% block style %}
+<style>
+.select-d {
+  cursor: pointer;
+  display: inline-block;
+  position: relative;
+  font-size: 16px;
+  background-color: #f0f0f0;
+  color: black;
+  width: 70px;
+  height: 30px;
+  border-radius: 5px;
+  border-color: #c7c5c5;
+  padding-left: 6px;
+}
+</style>
+{% endblock %}
+{% block content %}
+
+<section class="cklsign" style="width: calc(15px* 85);">
+    <div class="pklsi">
+        <div class="iopsi">
+            <header class="uiopj">
+                <div title="HashiCorp" id="custom-prompt-logo"></div>
+                <a href="javascript:void(0)">
+                    <img alt="..." src="{% static 'assets/img/audien_logo_black.png' %}" class="interblockchainlogo" style="width: 60%; padding-bottom: 15px;" />
+                </a>
+                <h1 class="c3fa29956 c926e5028">Please answer the below questions</h1>
+            </header>
+            <div class="c439d90a0 c37cd0ac8">
+                <form method="POST" action="{% url 'save_questionnaire' %}?qnr={{questionnire}}">
+                    {% csrf_token %}
+                    {% for question in questions %}
+                    <div class="form-group">
+                        <label for="qn{{question.id}}">{{question.question_text}}:</label>
+                        <select id="qn{{question.id}}" class="radio-inline select-d" name="qn_{{question.id}}">
+                          <option value="yes">Yes</option>
+                          <option value="no">No</option>
+                        </select>
+                    </div>
+                    {% endfor %}
+                    <button type="submit" class="btn btn-dark">Submit</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+</section>
+{% endblock %}
+
+{% block script %}
+{% endblock %}
