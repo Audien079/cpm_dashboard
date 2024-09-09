@@ -87,7 +87,7 @@ class SaveQuestionnaire(View):
         questionnaire.is_completed = True
         questionnaire.test_date = datetime.now()
         questionnaire.save()
-        return redirect(reverse('user_detail', kwargs={'id': questionnaire.user.id}))
+        return redirect(reverse('success_questionnaire'))
 
 
 @require_POST

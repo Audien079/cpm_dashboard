@@ -1,4 +1,7 @@
 {% extends 'layouts/top.html' %}
+{% block header %}
+<title>User Profile</title>
+{% endblock %}
 {% block content %}
 <div id="layoutSidenav_content">
     <main>
@@ -53,11 +56,15 @@
                     <div class="row">
                         {% for questionnaire in questionnaires %}
                         <div class="col-md-3">
-                            <p class="mt-4">{{questionnaire.test_date}}</p>
+                            <p class="mt-4">{{questionnaire.created_at}}</p>
                         </div>
                         <div class="col-md-9">
                             <p class="mt-4">
-                                {% if questionnaire.is_completed %}Questionnaire Completed{% else %}Questionnaire Sent{% endif %}</p>
+                                {% if questionnaire.is_completed %}
+                                    Questionnaire completed on {{questionnaire.test_date}}
+                                {% else %}
+                                    Questionnaire Sent
+                                {% endif %}</p>
                         </div>
                         {% endfor %}
                     </div>

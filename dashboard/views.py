@@ -1,6 +1,6 @@
 from django.urls import reverse_lazy
 from users.models import User
-from django.views.generic import ListView
+from django.views.generic import ListView, TemplateView
 
 
 class DashboardView(ListView):
@@ -25,8 +25,8 @@ class UserDetailView(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         user = User.objects.get(id=self.kwargs["id"])
-        all_questionnaires = user.user_questionnaires.order_by("-test_date").all()
-        latest_questionnaire = all_questionnaires.first()
+        all_questionnaires = user.user_questionnaires.order_by("-created_at").all()
+        latest_questionnaire = all_questionnaires.order_by("-created_at").filter(is_completed=True).first()
 
         if latest_questionnaire:
             context["answers"] = latest_questionnaire.questionnaire_answers.all()
@@ -34,3 +34,10 @@ class UserDetailView(ListView):
         context["questionnaires"] = all_questionnaires
         context["user"] = user
         return context
+
+
+class SuccessQuestionnaire(TemplateView):
+    """
+    Success page to redirect to user
+    """
+    template_name = "dashboard/success_questionnaire.html"

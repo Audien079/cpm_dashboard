@@ -2,6 +2,32 @@
 {% block header %}
 <title>CPM Dashboard</title>
 {% endblock %}
+{% block style %}
+<style>
+.status {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 15px;
+}
+
+.success {
+    background-color: #60c477; /* Green color */
+}
+
+.fail {
+    background-color: #e36470; /* Red color */
+}
+
+.icon {
+    font-size: 10px;
+    color: white;
+}
+</style>
+{% endblock %}
 {% block content %}
 <div id="layoutSidenav_content">
     <main>
@@ -39,8 +65,20 @@
                                 <i class="fa fa-address-book"></i>
                             </a>
                         </td>
-                        <td>{{user.is_admin}}</td>
-                        <td><button style="width: 125px;" user-id="{{user.id}}" class="email_qnr" type="submit" class="btn btn-primary mt-3 btn-sm">Send Questionnaire</button></td>
+                        <td>
+                            {% if user.is_admin %}
+                            <div class="status success">
+                                <i class="icon">✔</i>
+                            </div>
+                            {% else %}
+                            <div class="status fail">
+                                <i class="icon">✘</i>
+                            </div>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <button style="width: 125px;" user-id="{{user.id}}" type="submit" class="btn btn-primary mt-1 btn-sm email_qnr">Send Questionnaire</button>
+                        </td>
                     </tr>
                     {% endfor %}
                 </tbody>
