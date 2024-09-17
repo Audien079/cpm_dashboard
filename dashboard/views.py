@@ -3,14 +3,14 @@ from users.models import User
 from django.views.generic import ListView, TemplateView
 
 
-class DashboardView(ListView):
+class ClientView(ListView):
     """
-    Dashboard view
+    Client view
     """
     login_url = reverse_lazy("login")
-    template_name = "dashboard/dashboard.html"
+    template_name = "dashboard/client.html"
     model = User
-    queryset = User.objects.all().order_by("id")
+    queryset = User.objects.all().order_by("id").filter(is_admin=False)
     context_object_name = "users"
 
 
@@ -19,7 +19,7 @@ class UserDetailView(ListView):
     User detail view
     """
     login_url = reverse_lazy("login")
-    template_name = "dashboard/user_detail.html"
+    template_name = "users/profile.html"
     model = User
 
     def get_context_data(self, **kwargs):
@@ -33,6 +33,11 @@ class UserDetailView(ListView):
 
         context["questionnaires"] = all_questionnaires
         context["user"] = user
+
+        search = self.request.GET.get("search")
+        if search:
+            context["answers"] = latest_questionnaire.questionnaire_answers.filter(question__question_text__icontains=search)
+
         return context
 
 
@@ -41,3 +46,10 @@ class SuccessQuestionnaire(TemplateView):
     Success page to redirect to user
     """
     template_name = "dashboard/success_questionnaire.html"
+
+
+class RegisteredQuestionnaire(TemplateView):
+    """
+    Success page to redirect to user
+    """
+    template_name = "dashboard/registered_questionnaire.html"

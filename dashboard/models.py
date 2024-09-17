@@ -32,6 +32,13 @@ class UserQuestionnaire(BaseModel):
     def __str__(self):
         return f"Test for {self.user.username} on {self.test_date}"
 
+    @property
+    def created(self):
+        """
+        Returns total clips for each episode
+        """
+        return self.created_at
+
 
 class Answer(BaseModel):
     """

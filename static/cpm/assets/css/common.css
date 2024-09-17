@@ -199,7 +199,7 @@ body {
     color: #171725;
 }
 body[data-topbar="dark"] header#page-topbar {
-    background-color: #142749;
+    background-color: #576f9a;
 }
 body[data-topbar="dark"] .logo-dark {
     display: block;
@@ -219,7 +219,7 @@ body {
     font-size: 22px;
 }
 .navbar-brand-box .logo-lg img {
-    height: 36px;
+    height: 38px;
 }
 
 /* Overwrite Colors */
