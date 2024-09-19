@@ -1,0 +1,408 @@
+{% extends "layouts/top.html" %}
+{% load static %}
+{% block header %}
+<title>User Profile</title>
+{% endblock %}
+{% load custom_tags %}
+
+{% block style %}
+<style>
+    ul.contacts-block {
+        list-style: none;
+        padding-left: 0px;
+    }
+
+    ul.contacts-block li {
+        display: flex;
+        align-items: centre;
+        margin-bottom: 10px;
+    }
+
+    svg {
+        margin-right: 10px;
+    }
+
+    .edit-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #154e5c;
+      padding-left: 17px;
+      margin-top: -18px;
+    }
+
+    ul.contacts-block li .edit-btn svg {
+      vertical-align: middle; /* Ensure the icon is aligned */
+      margin-bottom: 10px;
+    }
+
+    .container {
+        display: flex;
+        align-items: center; /* Vertically aligns the items */
+        padding-left: 1px;
+    }
+
+    .message {
+        display: none;
+    }
+
+    .heading {
+        font-size: 20px;
+    }
+
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="main-content">
+    <div class="container-fluid" style="margin-top: 115px;">
+        <div class="row">
+            <!--right side-->
+            <div class="col-md-6" style="border-right:1px solid #000">
+                <h1 class="mt-4">{{user.first_name}} {{user.last_name}}</h1>
+                <p class="message" style="font: 13px; color: white; padding-left: 5px; height:25px;"></p>
+            </div>
+            <div class="col-md-6"></div>
+            <div class="col-md-6" style="border-right:1px solid #000">
+                <div class="row">
+                    <div class="col-md-12">
+                        <h3 class="mt-4"><b class="heading">Profile Snapshot</b></h3>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <p class="mt-4"><b>Date Of Birth </b></p>
+                        <div class="container">
+                            <p class="date_of_birth">{{user.date_of_birth}}</p>
+                            <button user-id="{{user.id}}" class="edit-btn edit-dob">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-edit-2"><path d="M12 20H21"></path><path d="M16.5 3.5L20.5 7.5L7 21L3 21L3 17L16.5 3.5Z"></path></svg>
+                            </button>
+                        </div>
+                        <p class="mt-4"><b>Last Contacted</b></p>
+                        <p>{{user.last_login}}</p>
+                        <p class="mt-4"><b>Mailing Address </b></p>
+                        <div class="container">
+                            <p class="address">{{user.address}}</p>
+                            <button user-id="{{user.id}}" class="edit-btn edit-address">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-edit-2"><path d="M12 20H21"></path><path d="M16.5 3.5L20.5 7.5L7 21L3 21L3 17L16.5 3.5Z"></path></svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <p class="mt-4"><b>Email </b></p>
+                        <div class="container">
+                            <p class="email">{{user.email}}</p>
+                            <button user-id="{{user.id}}" class="edit-btn edit-email">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-edit-2"><path d="M12 20H21"></path><path d="M16.5 3.5L20.5 7.5L7 21L3 21L3 17L16.5 3.5Z"></path></svg>
+                            </button>
+                        </div>
+                        <p class="mt-4"><b>Phone Number </b></p>
+                        <div class="container">
+                            <p class="phone">{{ user.phone|hyphened_number }}</p>
+                            <button user-id="{{user.id}}" class="edit-btn edit-phone">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-edit-2"><path d="M12 20H21"></path><path d="M16.5 3.5L20.5 7.5L7 21L3 21L3 17L16.5 3.5Z"></path></svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <p class="mt-5"><b class="heading">Most Recent Answers</b></p>
+                        {% for answer in answers %}
+                            <p style="margin: 0 0 2px;">Q{{ forloop.counter }}. {{answer.question.question_text}}</p>
+                            <p><b>{% if answer.yes_no_answer %}Yes{% else %}No{% endif %}</b></p>
+                        {% empty %}
+                        <div class="col-12">
+                            <p style="margin-top: 5%;">No Questionnaires Found.</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!--left side-->
+            <div class="col-md-6" style="padding-left: 40px;">
+                <div class="row">
+                    <div class="col-md-5">
+                        <p class="mt-4"><b class="heading">Activity Log</b></p>
+                    </div>
+                </div>
+                <div class="row">
+                    {% for questionnaire in questionnaires %}
+                    <div class="col-md-3">
+                        <p class="mt-4">{{questionnaire.created_at}}</p>
+                    </div>
+                    <div class="col-md-9">
+                        <p class="mt-4">
+                            {% if questionnaire.is_completed %}
+                                Questionnaire completed on {{questionnaire.test_date}}
+                            {% else %}
+                                Questionnaire Sent
+                            {% endif %}</p>
+                    </div>
+                    {% empty %}
+                    <div class="col-12">
+                        <p style="margin-top: 5%;">No Activity Found.</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+$(document).ready(function() {
+
+    $('.edit-dob').on('click', function() {
+        var currentDate = $('.date_of_birth').text();
+        var user_id = $(this).attr('user-id');
+
+        $('.date_of_birth').replaceWith('<input type="date" id="editDOB" value="' + currentDate + '" />');
+        $(this).replaceWith('<button user-id=' + user_id + ' type="button" class="btn btn-success" id="saveDob">Save</button>');
+    });
+
+    $(document).on('click', '#saveDob', function() {
+        var updated_dob = $('#editDOB').val();
+        var user_id = $(this).attr('user-id');
+
+        $.ajax({
+            url: "{% url 'modify_user_dob' %}",
+            type: 'POST',
+            data: {
+                'updated_dob': updated_dob,
+                'user_id': user_id,
+                'csrfmiddlewaretoken': '{{ csrf_token }}'
+            },
+            success: function(response) {
+                if(response['message'] == 'success'){
+                      $(".message").html(response['data']);
+                       $(".message").show();
+                       $(".message").css("background-color", "#6dde7c");
+                       setTimeout(function(){
+                           $(".message").hide();
+                           }, 4000);
+
+                        var date = new Date(updated_dob);
+
+                        var monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sept", "Oct", "Nov", "Dec"];
+                        var month = monthNames[date.getMonth()];
+                        var day = date.getDate();
+                        var year = date.getFullYear();
+
+                        // Format the final string
+                        var formattedDate = month + ". " + day + ", " + year;
+                        // $('#editDOB').replaceWith('<p id="date_of_birth">' + updated_dob + '</p>');
+                        $('#editDOB').replaceWith('<p id="date_of_birth">' + formattedDate + '</p>');
+                        $('#saveDob').replaceWith('<button user-id=' + user_id + ' class="edit-btn edit-dob"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-edit-2"><path d="M12 20H21"></path><path d="M16.5 3.5L20.5 7.5L7 21L3 21L3 17L16.5 3.5Z"></path></svg></button>');
+                  }
+                  else{
+                      $(".message").html(response['data']);
+                       $(".message").show();
+                       $(".message").css("background-color", "#d9437a");
+                       setTimeout(function(){
+                           $(".message").hide();
+                           }, 4000);
+                  }
+            },
+            error: function(xhr, status, error) {
+                alert('An error occurred: ' + error);
+            }
+        });
+    });
+
+    $('.edit-address').on('click', function() {
+        var currentText = $('.address').text();
+        var user_id = $(this).attr('user-id');
+
+        $('.address').replaceWith('<input type="text" id="editInput" value="' + currentText + '" />');
+        $(this).replaceWith('<button user-id=' + user_id + ' type="button" class="btn btn-success" id="saveButton">Save</button>');
+    });
+
+    $(document).on('click', '#saveButton', function() {
+        var updatedText = $('#editInput').val();
+        var user_id = $(this).attr('user-id');
+        console.log(user_id)
+
+        $.ajax({
+            url: "{% url 'modify_user_address' %}",
+            type: 'POST',
+            data: {
+                'updated_address': updatedText,
+                'user_id': user_id,
+                'csrfmiddlewaretoken': '{{ csrf_token }}'
+            },
+            success: function(response) {
+                if(response['message'] == 'success'){
+                      $(".message").html(response['data']);
+                       $(".message").show();
+                       $(".message").css("background-color", "#6dde7c");
+                       setTimeout(function(){
+                           $(".message").hide();
+                           }, 4000);
+
+                      $('#editInput').replaceWith('<p id="editableText">' + updatedText + '</p>');
+                        $('#saveButton').replaceWith('<button user-id=' + user_id + ' class="edit-btn edit-address"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-edit-2"><path d="M12 20H21"></path><path d="M16.5 3.5L20.5 7.5L7 21L3 21L3 17L16.5 3.5Z"></path></svg></button>');
+                  }
+                  else{
+                      $(".message").html(response['data']);
+                       $(".message").show();
+                       $(".message").css("background-color", "#d9437a");
+                       setTimeout(function(){
+                           $(".message").hide();
+                           }, 4000);
+                  }
+            },
+            error: function(xhr, status, error) {
+                alert('An error occurred: ' + error);
+            }
+        });
+    });
+
+    $('.edit-email').on('click', function() {
+        var currentText = $('.email').text();
+        var user_id = $(this).attr('user-id');
+
+        $('.email').replaceWith('<input type="text" id="editEmail" value="' + currentText + '" />');
+        $(this).replaceWith('<button user-id=' + user_id + ' type="button" class="btn btn-success" id="saveEmail">Save</button>');
+    });
+
+    $(document).on('click', '#saveEmail', function() {
+        var updatedText = $('#editEmail').val();
+        var user_id = $(this).attr('user-id');
+
+        $.ajax({
+            url: "{% url 'modify_user_email' %}",
+            type: 'POST',
+            data: {
+                'updated_email': updatedText,
+                'user_id': user_id,
+                'csrfmiddlewaretoken': '{{ csrf_token }}'
+            },
+            success: function(response) {
+                if(response['message'] == 'success'){
+                      $(".message").html(response['data']);
+                       $(".message").show();
+                       $(".message").css("background-color", "#6dde7c");
+                       setTimeout(function(){
+                           $(".message").hide();
+                           }, 4000);
+
+                      $('#editEmail').replaceWith('<span id="editableEmail">' + updatedText + '</span>');
+                        $('#saveEmail').replaceWith('<button user-id=' + user_id + ' class="edit-btn edit-email"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-edit-2"><path d="M12 20H21"></path><path d="M16.5 3.5L20.5 7.5L7 21L3 21L3 17L16.5 3.5Z"></path></svg></button>');
+                  }
+                  else{
+                      $(".message").html(response['data']);
+                       $(".message").show();
+                       $(".message").css("background-color", "#d9437a");
+                       setTimeout(function(){
+                           $(".message").hide();
+                           }, 4000);
+                  }
+            },
+            error: function(xhr, status, error) {
+                alert('An error occurred: ' + error);
+            }
+        });
+    });
+
+    $('.edit-email').on('click', function() {
+        var currentText = $('.email').text();
+        var user_id = $(this).attr('user-id');
+
+        $('.email').replaceWith('<input type="text" id="editEmail" value="' + currentText + '" />');
+        $(this).replaceWith('<button user-id=' + user_id + ' type="button" class="btn btn-success" id="saveEmail">Save</button>');
+    });
+
+    $(document).on('click', '#saveEmail', function() {
+        var updatedText = $('#editEmail').val();
+        var user_id = $(this).attr('user-id');
+
+        $.ajax({
+            url: "{% url 'modify_user_email' %}",
+            type: 'POST',
+            data: {
+                'updated_email': updatedText,
+                'user_id': user_id,
+                'csrfmiddlewaretoken': '{{ csrf_token }}'
+            },
+            success: function(response) {
+                if(response['message'] == 'success'){
+                      $(".message").html(response['data']);
+                       $(".message").show();
+                       $(".message").css("background-color", "#6dde7c");
+                       setTimeout(function(){
+                           $(".message").hide();
+                           }, 4000);
+
+                      $('#editEmail').replaceWith('<span id="editableEmail">' + updatedText + '</span>');
+                        $('#saveEmail').replaceWith('<button user-id=' + user_id + ' class="edit-btn edit-email"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-edit-2"><path d="M12 20H21"></path><path d="M16.5 3.5L20.5 7.5L7 21L3 21L3 17L16.5 3.5Z"></path></svg></button>');
+                  }
+                  else{
+                      $(".message").html(response['data']);
+                       $(".message").show();
+                       $(".message").css("background-color", "#d9437a");
+                       setTimeout(function(){
+                           $(".message").hide();
+                           }, 4000);
+                  }
+            },
+            error: function(xhr, status, error) {
+                alert('An error occurred: ' + error);
+            }
+        });
+    });
+
+    $('.edit-phone').on('click', function() {
+        var currentText = $('.phone').text();
+        var user_id = $(this).attr('user-id');
+
+        $('.phone').replaceWith('<input type="text" id="editPhone" value="' + currentText + '" />');
+        $(this).replaceWith('<button user-id=' + user_id + ' type="button" class="btn btn-success" id="savePhone">Save</button>');
+    });
+
+    $(document).on('click', '#savePhone', function() {
+        var updatedText = $('#editPhone').val();
+        var user_id = $(this).attr('user-id');
+
+        $.ajax({
+            url: "{% url 'modify_user_phone' %}",
+            type: 'POST',
+            data: {
+                'updated_phone': updatedText,
+                'user_id': user_id,
+                'csrfmiddlewaretoken': '{{ csrf_token }}'
+            },
+            success: function(response) {
+                if(response['message'] == 'success'){
+                      $(".message").html(response['data']);
+                       $(".message").show();
+                       $(".message").css("background-color", "#6dde7c");
+                       setTimeout(function(){
+                           $(".message").hide();
+                           }, 4000);
+
+                      $('#editPhone').replaceWith('<span id="editablePhone">' + updatedText + '</span>');
+                        $('#savePhone').replaceWith('<button user-id=' + user_id + ' class="edit-btn edit-phone"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-edit-2"><path d="M12 20H21"></path><path d="M16.5 3.5L20.5 7.5L7 21L3 21L3 17L16.5 3.5Z"></path></svg></button>');
+                  }
+                  else{
+                      $(".message").html(response['data']);
+                       $(".message").show();
+                       $(".message").css("background-color", "#d9437a");
+                       setTimeout(function(){
+                           $(".message").hide();
+                           }, 4000);
+                  }
+            },
+            error: function(xhr, status, error) {
+                alert('An error occurred: ' + error);
+            }
+        });
+    });
+});
+
+</script>
+{% endblock %}

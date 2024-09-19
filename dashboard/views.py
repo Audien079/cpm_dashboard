@@ -19,7 +19,7 @@ class UserDetailView(ListView):
     User detail view
     """
     login_url = reverse_lazy("login")
-    template_name = "users/profile.html"
+    template_name = "dashboard/user_detail.html"
     model = User
 
     def get_context_data(self, **kwargs):
