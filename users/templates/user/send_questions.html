@@ -18,6 +18,12 @@
   border-radius: 5px;
   border-color: #c7c5c5;
   padding-left: 6px;
+  margin-left: 17px;
+  background: transparent;
+}
+.questions {
+    text-align: left;
+    margin-left: 100px;
 }
 </style>
 {% endblock %}
@@ -32,12 +38,13 @@
                 <h1 class="c3fa29956 c926e5028">Please answer the below questions</h1>
             </header>
             <div class="c439d90a0 c37cd0ac8">
-                <form method="POST" action="{% url 'save_questionnaire' %}?qnr={{questionnire}}">
+                <form class="questions" method="POST" action="{% url 'save_questionnaire' %}?qnr={{questionnire}}">
                     {% csrf_token %}
                     {% for question in questions %}
                     <div class="form-group">
-                        <label for="qn{{question.id}}">{{question.question_text}}:</label>
-                        <select id="qn{{question.id}}" class="radio-inline select-d" name="qn_{{question.id}}">
+                        <label for="qn{{question.id}}">Q{{ forloop.counter }}. {{question.question_text}}:</label>
+                        <select id="qn{{question.id}}" class="radio-inline select-d" name="qn_{{question.id}}" required>
+                        <option value="" disabled selected>-----</option>
                           <option value="yes">Yes</option>
                           <option value="no">No</option>
                         </select>

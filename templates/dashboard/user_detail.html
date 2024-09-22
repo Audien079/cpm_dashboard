@@ -47,7 +47,10 @@
     }
 
     .heading {
-        font-size: 20px;
+        font-size: 19px;
+    }
+    .sub-heading {
+        font-size: 15px;
     }
 
 </style>
@@ -59,7 +62,7 @@
         <div class="row">
             <!--right side-->
             <div class="col-md-6" style="border-right:1px solid #000">
-                <h1 class="mt-4">{{user.first_name}} {{user.last_name}}</h1>
+                <h1 class="mt-4" style="font-size: 35px;">{{user.first_name}} {{user.last_name}}</h1>
                 <p class="message" style="font: 13px; color: white; padding-left: 5px; height:25px;"></p>
             </div>
             <div class="col-md-6"></div>
@@ -72,34 +75,34 @@
 
                 <div class="row">
                     <div class="col-md-6">
-                        <p class="mt-4"><b>Date Of Birth </b></p>
+                        <p class="mt-2 sub-heading"><b>Date Of Birth </b></p>
                         <div class="container">
-                            <p class="date_of_birth">{{user.date_of_birth}}</p>
+                            <p class="date_of_birth sub-heading">{{user.date_of_birth}}</p>
                             <button user-id="{{user.id}}" class="edit-btn edit-dob">
                               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-edit-2"><path d="M12 20H21"></path><path d="M16.5 3.5L20.5 7.5L7 21L3 21L3 17L16.5 3.5Z"></path></svg>
                             </button>
                         </div>
-                        <p class="mt-4"><b>Last Contacted</b></p>
-                        <p>{{user.last_login}}</p>
-                        <p class="mt-4"><b>Mailing Address </b></p>
+                        <p class="mt-2 sub-heading"><b>Last Contacted</b></p>
+                        <p class="sub-heading">{{user.last_login}}</p>
+                        <p class="mt-2 sub-heading"><b>Mailing Address </b></p>
                         <div class="container">
-                            <p class="address">{{user.address}}</p>
+                            <p class="address sub-heading">{{user.address}}</p>
                             <button user-id="{{user.id}}" class="edit-btn edit-address">
                               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-edit-2"><path d="M12 20H21"></path><path d="M16.5 3.5L20.5 7.5L7 21L3 21L3 17L16.5 3.5Z"></path></svg>
                             </button>
                         </div>
                     </div>
                     <div class="col-md-6">
-                        <p class="mt-4"><b>Email </b></p>
+                        <p class="mt-2 sub-heading"><b>Email </b></p>
                         <div class="container">
-                            <p class="email">{{user.email}}</p>
+                            <p class="email sub-heading">{{user.email}}</p>
                             <button user-id="{{user.id}}" class="edit-btn edit-email">
                               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-edit-2"><path d="M12 20H21"></path><path d="M16.5 3.5L20.5 7.5L7 21L3 21L3 17L16.5 3.5Z"></path></svg>
                             </button>
                         </div>
-                        <p class="mt-4"><b>Phone Number </b></p>
+                        <p class="mt-2 sub-heading"><b>Phone Number </b></p>
                         <div class="container">
-                            <p class="phone">{{ user.phone|hyphened_number }}</p>
+                            <p class="phone sub-heading">{{ user.phone|hyphened_number }}</p>
                             <button user-id="{{user.id}}" class="edit-btn edit-phone">
                               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-edit-2"><path d="M12 20H21"></path><path d="M16.5 3.5L20.5 7.5L7 21L3 21L3 17L16.5 3.5Z"></path></svg>
                             </button>
@@ -110,11 +113,11 @@
                     <div class="col-md-12">
                         <p class="mt-5"><b class="heading">Most Recent Answers</b></p>
                         {% for answer in answers %}
-                            <p style="margin: 0 0 2px;">Q{{ forloop.counter }}. {{answer.question.question_text}}</p>
-                            <p><b>{% if answer.yes_no_answer %}Yes{% else %}No{% endif %}</b></p>
+                            <p class="sub-heading" style="margin: 0 0 2px;">Q{{ forloop.counter }}. {{answer.question.question_text}}</p>
+                            <p class="sub-heading"><b>{% if answer.yes_no_answer %}Yes{% else %}No{% endif %}</b></p>
                         {% empty %}
                         <div class="col-12">
-                            <p style="margin-top: 5%;">No Questionnaires Found.</p>
+                            <p class="sub-heading" style="margin-top: 5%;">No Questionnaires Found.</p>
                         </div>
                         {% endfor %}
                     </div>
@@ -131,10 +134,10 @@
                 <div class="row">
                     {% for questionnaire in questionnaires %}
                     <div class="col-md-3">
-                        <p class="mt-4">{{questionnaire.created_at}}</p>
+                        <p class="mt-4 sub-heading">{{questionnaire.created_at}}</p>
                     </div>
                     <div class="col-md-9">
-                        <p class="mt-4">
+                        <p class="mt-4 sub-heading">
                             {% if questionnaire.is_completed %}
                                 Questionnaire completed on {{questionnaire.test_date}}
                             {% else %}
@@ -143,7 +146,7 @@
                     </div>
                     {% empty %}
                     <div class="col-12">
-                        <p style="margin-top: 5%;">No Activity Found.</p>
+                        <p class="sub-heading" style="margin-top: 5%;">No Activity Found.</p>
                     </div>
                     {% endfor %}
                 </div>
