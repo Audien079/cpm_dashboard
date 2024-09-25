@@ -1,9 +1,10 @@
 from django.urls import reverse_lazy
 from users.models import User
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import ListView, TemplateView
 
 
-class ClientView(ListView):
+class ClientView(LoginRequiredMixin, ListView):
     """
     Client view
     """
@@ -18,13 +19,13 @@ class ClientView(ListView):
     #     import os
     #     from dashboard.utils import email_questionnaire
     #     user_obj = User.objects.filter(pk=2).first()
+    #
+    #     questionnaire = UserQuestionnaire.objects.create(user=user_obj)
+    #     questionnaire_link = os.environ.get("SITE_URL") + f'/questionnaire/{questionnaire.id}/'
+    #     email_questionnaire(user_obj, questionnaire_link)
 
-        # questionnaire = UserQuestionnaire.objects.get(id=13)
-        # questionnaire_link = os.environ.get("SITE_URL") + f'/questionnaire/{questionnaire.id}/'
-        # email_questionnaire(user_obj, questionnaire_link)
 
-
-class UserDetailView(ListView):
+class UserDetailView(LoginRequiredMixin, ListView):
     """
     User detail view
     """

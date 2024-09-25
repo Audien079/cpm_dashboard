@@ -27,7 +27,7 @@ def send_email(to_email, subject, html_content):
 def email_questionnaire(user, link):
     """email test"""
     to_email = user.email
-    subject = 'CPM Questionnaire'
+    subject = 'CPA Questionnaire'
     context = {
         "username": user.username,
         "link": link

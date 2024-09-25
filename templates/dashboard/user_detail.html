@@ -61,15 +61,15 @@
     <div class="container-fluid" style="margin-top: 115px;">
         <div class="row">
             <!--right side-->
-            <div class="col-md-6" style="border-right:1px solid #000">
+            <div class="col-md-6">
                 <h1 class="mt-4" style="font-size: 32px;">{{user.first_name}} {{user.last_name}}</h1>
                 <p class="message" style="font: 13px; color: white; padding-left: 5px; height:25px;"></p>
             </div>
             <div class="col-md-6"></div>
-            <div class="col-md-6" style="border-right:1px solid #000">
+            <div class="col-md-6 mt-3" style="border-right:1px solid #000">
                 <div class="row">
                     <div class="col-md-12">
-                        <h3 class="mt-4"><b class="heading">Profile Snapshot</b></h3>
+                        <h3><b class="heading">Profile Snapshot</b></h3>
                     </div>
                 </div>
 
@@ -115,7 +115,7 @@
                     <div class="col-md-12">
                         <p class="mt-5"><b class="heading">Most Recent Answers</b></p>
                         {% for answer in answers %}
-                            <p class="sub-heading" style="margin: 0 0 2px;">Q{{ forloop.counter }}. {{answer.question.question_text}}</p>
+                            <p class="sub-heading" style="margin: 0 0 2px;">{{ forloop.counter }}. {{answer.question.question_text}}</p>
                             <p class="sub-heading"><b>{% if answer.yes_no_answer %}Yes{% else %}No{% endif %}</b></p>
                         {% empty %}
                         <div class="col-12">
@@ -127,21 +127,21 @@
             </div>
 
             <!--left side-->
-            <div class="col-md-6" style="padding-left: 40px;">
+            <div class="col-md-6 mt-3" style="padding-left: 40px;">
                 <div class="row">
                     <div class="col-md-5">
-                        <p class="mt-4"><b class="heading">Activity Feed</b></p>
+                        <p><b class="heading">Activity Feed</b></p>
                     </div>
                 </div>
                 <div class="row">
                     {% for questionnaire in questionnaires %}
-                    <div class="col-md-3">
+                    <div class="col-md-4">
                         {% if questionnaire.is_completed %}
-                        <p class="mt-4 sub-heading">{{questionnaire.test_date|date:"m/d/Y"}}</p>
+                        <p class="mt-4 sub-heading">{{questionnaire.test_date|date:"m/d/Y H:i:s"}}</p>
                         {% endif %}
-                        <p class="mt-4 sub-heading">{{questionnaire.created_at|date:"m/d/Y"}}</p>
+                        <p class="mt-4 sub-heading">{{questionnaire.created_at|date:"m/d/Y H:i:s"}}</p>
                     </div>
-                    <div class="col-md-9">
+                    <div class="col-md-8">
                         {% if questionnaire.is_completed %}
                             <p class="mt-4 sub-heading">Questionnaire {{ forloop.revcounter }} completed</p>
                         {% endif %}

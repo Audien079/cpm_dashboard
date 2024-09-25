@@ -42,7 +42,7 @@
                     {% csrf_token %}
                     {% for question in questions %}
                     <div class="form-group">
-                        <label for="qn{{question.id}}">Q{{ forloop.counter }}. {{question.question_text}}:</label>
+                        <label for="qn{{question.id}}">{{ forloop.counter }}. {{question.question_text}}:</label>
                         <select id="qn{{question.id}}" class="radio-inline select-d" name="qn_{{question.id}}" required>
                         <option value="" disabled selected>Select Your Answer</option>
                           <option value="yes">Yes</option>
