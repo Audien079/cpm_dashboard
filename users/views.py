@@ -170,7 +170,8 @@ def modify_user_dob(request):
 
     user.date_of_birth = updated_dob
     user.save()
-    return JsonResponse({"message": "success", "data": "New date of birth is saved"})
+    updated_dob = datetime.strftime(updated_dob.date(), "%m/%d/%Y")
+    return JsonResponse({"message": "success", "data": "New date of birth is saved", "dob": updated_dob})
 
 
 @require_POST

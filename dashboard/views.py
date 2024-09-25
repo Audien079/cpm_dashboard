@@ -13,6 +13,16 @@ class ClientView(ListView):
     queryset = User.objects.all().order_by("id").filter(is_admin=False)
     context_object_name = "users"
 
+    # def get_context_data(self, *, object_list=None, **kwargs):
+    #     from dashboard.models import UserQuestionnaire
+    #     import os
+    #     from dashboard.utils import email_questionnaire
+    #     user_obj = User.objects.filter(pk=2).first()
+
+        # questionnaire = UserQuestionnaire.objects.get(id=13)
+        # questionnaire_link = os.environ.get("SITE_URL") + f'/questionnaire/{questionnaire.id}/'
+        # email_questionnaire(user_obj, questionnaire_link)
+
 
 class UserDetailView(ListView):
     """
