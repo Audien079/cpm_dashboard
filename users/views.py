@@ -2,10 +2,10 @@ import os
 from datetime import datetime
 from django.shortcuts import render, redirect
 from django.contrib.auth import login
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from .forms import customRegistrationForm
-from django.urls import reverse
 from django.views.generic.edit import CreateView
+from django.utils import timezone
 from django.contrib.auth.views import LoginView
 from django.views.decorators.http import require_POST
 from django.http import JsonResponse
@@ -89,7 +89,7 @@ class SaveQuestionnaire(View):
                     yes_no_answer=yn
                 )
         questionnaire.is_completed = True
-        questionnaire.test_date = datetime.now()
+        questionnaire.test_date = timezone.now()
         questionnaire.save()
         return redirect(reverse('success_questionnaire'))
 

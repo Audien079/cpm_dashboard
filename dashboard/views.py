@@ -2,6 +2,7 @@ from django.urls import reverse_lazy
 from users.models import User
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import ListView, TemplateView
+from dashboard.models import Activity
 
 
 class ClientView(LoginRequiredMixin, ListView):
@@ -21,6 +22,7 @@ class ClientView(LoginRequiredMixin, ListView):
     #     user_obj = User.objects.filter(pk=2).first()
     #
     #     questionnaire = UserQuestionnaire.objects.create(user=user_obj)
+    #     Activity.objects.create(user=user_obj, questionnaire=questionnaire)
     #     questionnaire_link = os.environ.get("SITE_URL") + f'/questionnaire/{questionnaire.id}/'
     #     email_questionnaire(user_obj, questionnaire_link)
 
@@ -36,13 +38,14 @@ class UserDetailView(LoginRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         user = User.objects.get(id=self.kwargs["id"])
+        activities = Activity.objects.filter(user=user).order_by("-created_at")
         all_questionnaires = user.user_questionnaires.order_by("-created_at").all()
         latest_questionnaire = all_questionnaires.order_by("-created_at").filter(is_completed=True).first()
 
         if latest_questionnaire:
             context["answers"] = latest_questionnaire.questionnaire_answers.all()
 
-        context["questionnaires"] = all_questionnaires
+        context["activities"] = activities
         context["user"] = user
 
         search = self.request.GET.get("search")

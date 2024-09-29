@@ -39,6 +39,11 @@ class UserQuestionnaire(BaseModel):
         """
         return self.created_at
 
+    @property
+    def yes_answers(self):
+        """Returns all the yes answers"""
+        return self.questionnaire_answers.filter(yes_no_answer=True)
+
 
 class Answer(BaseModel):
     """
@@ -62,3 +67,14 @@ class Answer(BaseModel):
 
     def __str__(self):
         return f"Answer to {self.question} by {self.user_questionnaire.user.username}"
+
+
+class Activity(BaseModel):
+    """
+    User activity
+    """
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    questionnaire = models.ForeignKey(UserQuestionnaire, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"{self.user} activity"

@@ -47,12 +47,29 @@
     }
 
     .heading {
-        font-size: 19px;
+        font-size: 18px;
     }
     .sub-heading {
-        font-size: 15px;
+        font-size: 14px;
     }
 
+.activity-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    font-size: 14px;
+}
+
+.activity-item .timestamp {
+    width: 27%;
+    text-align: left;
+}
+
+.activity-item .description {
+    width: 65%;
+    text-align: left;
+}
 </style>
 {% endblock %}
 
@@ -134,26 +151,31 @@
                     </div>
                 </div>
                 <div class="row">
-                    {% for questionnaire in questionnaires %}
-                    <div class="col-md-4">
-                        {% if questionnaire.is_completed %}
-                        <p class="mt-4 sub-heading">{{questionnaire.test_date|date:"m/d/Y H:i:s"}}</p>
+                    <!-- Activity Feed Row -->
+                    <div class="col-md-12">
+                        <!-- Timestamp and Description Container -->
+                        {% for activity in activities %}
+                        {% if activity.questionnaire.is_completed %}
+                        <div class="activity-item">
+                            <div class="timestamp">{{activity.questionnaire.test_date|date:"m/d/Y h:i A"}}</div>
+                            <div class="description">Questionnaire {{ forloop.revcounter }} completed</div>
+                        </div>
                         {% endif %}
-                        <p class="mt-4 sub-heading">{{questionnaire.created_at|date:"m/d/Y H:i:s"}}</p>
+                        {% for yes_tmp in activity.questionnaire.yes_answers %}
+                        <div class="activity-item">
+                            <div class="timestamp">{{activity.questionnaire.test_date|date:"m/d/Y h:i A"}}</div>
+                            <div class="description">{{yes_tmp.question}}</div>
+                        </div>
+                        {% endfor %}
+                        <div class="activity-item">
+                            <div class="timestamp">{{activity.questionnaire.created_at|date:"m/d/Y h:i A"}}</div>
+                            <div class="description">Questionnaire {{ forloop.revcounter }} Sent</div>
+                        </div>
+                        {% endfor %}
                     </div>
-                    <div class="col-md-8">
-                        {% if questionnaire.is_completed %}
-                            <p class="mt-4 sub-heading">Questionnaire {{ forloop.revcounter }} completed</p>
-                        {% endif %}
-                            <p class="mt-4 sub-heading">Questionnaire {{ forloop.revcounter }} Sent</p>
-                    </div>
-                    {% empty %}
-                    <div class="col-12">
-                        <p class="sub-heading" style="margin-top: 5%;">No Activity Found.</p>
-                    </div>
-                    {% endfor %}
                 </div>
             </div>
+
         </div>
     </div>
 </div>
