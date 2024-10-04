@@ -1,0 +1,392 @@
+{% extends "layouts/questionnaire_base.html" %}
+{% block header %}
+<title>CPM Questionare</title>
+{% endblock %}
+{% load static %}
+
+{% block style %}
+    <style>
+        .container {
+            margin-top: 80px !important;
+            max-width: 720px;
+            border-radius: 25px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .welcome-box {
+            display: block;
+            text-align: center;
+            padding: 50px;
+        }
+
+        .question-box {
+            display: none;
+        }
+
+        .question-box.active {
+            display: block;
+        }
+
+        .answer-box {
+            margin-top: 10px;
+        }
+
+        .additional-info {
+            display: none;
+            margin-top: 10px;
+        }
+
+        .custom-progress-bar {
+            margin-top: 40px;
+            display: flex;
+            justify-content: space-between;
+            height: 12px;
+        }
+
+        .progress-step {
+            width: 10%;
+            height: 10px;
+            background-color: #ccc;
+            position: relative;
+        }
+
+        .progress-step.active {
+            background-color: #4caf50;
+        }
+
+        .navigation-buttons {
+            margin-top: 20px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 40px;
+        }
+
+        .button-group button {
+            padding: 10px 20px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            cursor: pointer;
+            background-color: white;
+        }
+
+        .button-group button:hover {
+            background-color: #f0f0f0;
+        }
+
+        .answer-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .answer-buttons button {
+            padding: 10px 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: white;
+            cursor: pointer;
+            outline: none;
+        }
+
+        .page-buttons button {
+            padding: 10px 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: white;
+            cursor: pointer;
+            outline: none;
+        }
+
+        .answer-buttons button.selected {
+            background-color: #565656;
+            color: white;
+            border-color: #565656;
+        }
+
+        .additional-info {
+            display: none;
+            margin-top: 10px;
+        }
+
+        .question-box {
+            text-align: center;
+        }
+
+        .input-container {
+            margin: 20px;
+            font-family: Arial, sans-serif;
+        }
+
+        .input-container label {
+            font-size: 16px;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .input-container textarea {
+            width: 100%;
+            max-width: 400px;
+            height: 80px;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            resize: none;
+        }
+    </style>
+{% endblock %}
+{% block content %}
+<div class="container">
+    <!-- Welcome Screen -->
+    <div id="welcomeScreen" class="welcome-box page-buttons">
+        <h1>Questionnaire</h1>
+        <p>Thank you for taking the time to answer these questions. The following questions will help us determine if there have been any relevant changes in your financial situation so we can provide you with custom tailored support.</p>
+        <button id="startBtn">Get Started  &rarr;</button>
+    </div>
+
+    <form id="questionnaireForm" data-questionnaire="{{questionnire}}" method="POST" action="{% url 'complete_questionnaire' %}?qnr={{questionnire}}">
+        {% csrf_token %}
+        <!-- Question 1 -->
+        {% for question in questions %}
+        <div class="question-box" data-question="{{question.id}}">
+            <h3>{{ question.custom_order }}. {{question.question_text}}:</h3>
+            <div class="answer-buttons">
+                <button class="ans_button" data-order="{{question.id}}" type="button" data-value="Yes">Yes</button>
+                <button class="ans_button" data-order="{{question.id}}" type="button" data-value="No">No</button>
+                <button class="ans_button" data-order="{{question.id}}" type="button" data-value="Maybe">Maybe</button>
+            </div>
+           <!-- <div class="additional-info info{{question.order}}">
+                <label>Please provide your updated information: <input type="text" name="q{{question.order}}_details"></label>
+            </div>  -->
+            <div class="input-container additional-info info{{question.id}}">
+                <label for="updated-info{{question.id}}">Please provide your updated information:</label>
+                <textarea id="updated-info{{question.id}}" placeholder=""></textarea>
+            </div>
+        </div>
+        {% endfor %}
+        <!-- Add more questions (up to 10 questions) here... -->
+
+        <!-- Navigation Buttons -->
+        <div class="navigation-buttons page-buttons" style="display:none;">
+            <button type="button" id="prevBtn" onclick="prevQuestion()">&larr; Previous</button>
+            <button type="button" id="nextBtn" onclick="nextQuestion(this)">Next &rarr;</button>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="custom-progress-bar" style="display:none;">
+            {% for question in questions %}
+            <div class="progress-step active" data-step={{question.id}}></div>
+            {% endfor %}
+        </div>
+    </form>
+    <div id="finishScreen" class="finish-box page-buttons" style="display:none;">
+        <h2>Thank You for Completing the Questionnaire!</h2>
+        <p>Please click the "Finish" button to submit your responses.</p>
+        <div class="avigation-buttons">
+            <button type="button" id="prevFinishBtn" onclick="prevQuestion()">Previous</button>
+            <button type="submit" id="finishBtn">Finish</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block script %}
+<script>
+    let questionArray = [];
+    let questionnaire = $('#questionnaireForm').attr('data-questionnaire');
+    let currentQuestion = $('.question-box').first().attr("data-question");
+    $('.question-box').each(function(){
+        var qn_id = $(this).attr("data-question");
+        questionArray.push(qn_id);
+        if (currentQuestion >= qn_id){
+            currentQuestion = qn_id;
+        }
+    })
+    questionArray.sort(function(a, b) {
+        return a - b;
+    });
+    const totalQuestions = $('.question-box').length;
+    let currentIndex = 0;
+    console.log(currentQuestion, ' ', totalQuestions, ' ', questionArray, ' ', questionnaire)
+
+    // Show/hide additional info for "Yes" answer
+    document.querySelectorAll('input[type="radio"]').forEach(input => {
+        input.addEventListener('change', function () {
+            const parent = this.closest('.question-box');
+            const additionalInfo = parent.querySelector('.additional-info');
+            if (this.value === 'Yes') {
+                additionalInfo.style.display = 'block';
+            } else {
+                additionalInfo.style.display = 'none';
+            }
+        });
+    });
+    $('.ans_button').click(function(){
+        qid = $(this).attr('data-order');
+        if ($(this).attr('data-value') == 'Yes') {
+            $('.info' + qid).show();
+        } else {
+            $('.info' + qid).hide();
+        }
+    })
+
+    // Show questions when "Get Started" is clicked
+    document.getElementById('startBtn').addEventListener('click', function() {
+        document.getElementById('welcomeScreen').style.display = 'none';
+        document.querySelector(`[data-question="11"]`).classList.add('active');
+        document.querySelector('.navigation-buttons').style.display = 'flex';
+        document.querySelector('.custom-progress-bar').style.display = 'flex';
+    });
+
+    // Navigate to next question
+    function nextQuestion() {
+        let currentQuestionId = questionArray[currentIndex];
+        const selectedAnswer = $(`[data-question="${currentQuestionId}"] .answer-buttons button.selected`);
+
+        // Check if an answer is selected
+        if (selectedAnswer.length === 0) {
+            showError('Please select an answer before proceeding.');
+            return;
+        }
+
+        // Check if the answer is 'Yes' and additional info is filled
+        if (selectedAnswer.attr('data-value') === 'Yes') {
+            const additionalInfo = $(`.info${currentQuestionId} textarea`).val();
+            if (!additionalInfo.trim()) {
+                showError('Please provide additional information.');
+                return;
+            }
+        }
+        hideError();
+        const answer = selectedAnswer.attr('data-value');
+        const additionalInfo = $(`.info${currentQuestionId} textarea`).val();
+
+        $.ajax({
+            url: "{% url 'save_questions' %}",
+            type: 'POST',
+            data: {
+                'answer': answer,
+                'info': additionalInfo,
+                'questionnaire': questionnaire,
+                'question_id': currentQuestionId,
+                'csrfmiddlewaretoken': '{{ csrf_token }}'
+            }
+        });
+
+        if (currentIndex < totalQuestions - 1) {
+            let currentQuestion = questionArray[currentIndex];
+            if (currentQuestionId == '13' && answer === 'No') {
+                currentIndex = 8
+            }
+            if (currentQuestionId == '20' && answer === 'No') {
+                currentIndex = 20
+                $('.question-box').removeClass('active');
+                $('.navigation-buttons').hide();
+                $('.custom-progress-bar').hide();
+                $('#finishScreen').show();
+            }
+            let nextQuestion = questionArray[++currentIndex];
+            $(`[data-question="${currentQuestion}"]`).removeClass('active');
+            $(`[data-question="${nextQuestion}"]`).addClass('active');
+            updateProgressBar();
+        }else if (currentIndex === totalQuestions - 1) {
+            // Hide questionnaire and show finish screen
+            $('.question-box').removeClass('active');
+            $('.navigation-buttons').hide();
+            $('.custom-progress-bar').hide();
+            $('#finishScreen').show();
+        }
+
+        $('#prevBtn').prop('disabled', false);
+    }
+
+    // jQuery function to go to the previous question
+    function prevQuestion() {
+        $('#finishScreen').hide();
+        $('.navigation-buttons').show();
+        $('.custom-progress-bar').show();
+        if (currentIndex > 0) {
+            let currentQuestion = questionArray[currentIndex];
+            let prevQuestion = questionArray[--currentIndex];
+
+            $(`[data-question="${currentQuestion}"]`).removeClass('active');
+            $(`[data-question="${prevQuestion}"]`).addClass('active');
+
+            updateProgressBar();
+        }
+
+        // Disable "Previous" button on the first question
+        if (currentIndex === 0) {
+            $('#prevBtn').prop('disabled', true);
+        }
+
+        // Enable the "Next" button
+        $('#nextBtn').prop('disabled', false);
+    }
+
+    // Show error message
+    function showError(message) {
+        if (!$('#error-message').length) {
+            $('<div id="error-message" style="color: red; margin-bottom: 20px;"></div>')
+                .insertBefore('.container');
+        }
+        $('#error-message').text(message);
+    }
+
+    // Hide error message
+    function hideError() {
+        $('#error-message').remove();
+    }
+
+    // Update progress bar
+    function updateProgressBar() {
+        document.querySelectorAll('.progress-step').forEach(step => {
+            const stepNumber = parseInt(step.getAttribute('data-step'));
+            if (stepNumber <= currentQuestion) {
+                step.classList.add('active');
+            } else {
+                step.classList.remove('active');
+            }
+        });
+    }
+
+    // Disable "Previous" button on first question by default
+    document.getElementById('prevBtn').disabled = true;
+
+    // Select answer function
+    $('.answer-buttons button').click(function() {
+        // Remove 'selected' class from all buttons of the current question
+        $(this).siblings().removeClass('selected');
+
+        // Add 'selected' class to the clicked button
+        $(this).addClass('selected');
+
+        // Store selected value (if needed, e.g., in a hidden input)
+        const selectedValue = $(this).data('value');
+
+        // Show or hide additional info if 'Yes' is selected
+        const qid = $(this).attr('data-order');
+        if (selectedValue === 'Yes') {
+            $(`.info${qid}`).show();
+        } else {
+            $(`.info${qid}`).hide();
+        }
+    });
+
+    $('#finishBtn').click(function(){
+        $('#questionnaireForm').submit();
+    })
+</script>
+{% endblock %}

@@ -8,8 +8,9 @@ class QuestionAdmin(admin.ModelAdmin):
     Question data view in admin panel
     """
 
-    list_display = ["question_text", "type_name"]
+    list_display = ["question_text", "order", "parent_question"]
     search_fields = ["question_text"]
+    ordering = ('id',)
 
 
 @admin.register(UserQuestionnaire)

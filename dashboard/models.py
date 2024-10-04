@@ -5,7 +5,12 @@ from users.models import User, BaseModel
 
 QUESTION_TYPES = (
     ('YN', 'Yes/No'),
-    ('TEXT', 'Input'),
+)
+
+ANSWER = (
+    ('YES', 'YES'),
+    ('NO', 'NO'),
+    ('MAYBE', 'MAYBE')
 )
 
 
@@ -14,10 +19,21 @@ class Question(BaseModel):
     The actual question text and its type
     """
     question_text = models.TextField()
-    type_name = models.CharField(max_length=4, choices=QUESTION_TYPES)
+    parent_question = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name="sub_questions")
+    order = models.CharField(max_length=3, null=True, blank=True)
 
     def __str__(self):
         return self.question_text
+
+    @property
+    def custom_order(self):
+        """
+        Returns prder of questions
+        """
+        if self.parent_question:
+            return self.parent_question.order + '.' + self.order
+
+        return self.order
 
 
 class UserQuestionnaire(BaseModel):
@@ -51,19 +67,8 @@ class Answer(BaseModel):
     """
     user_questionnaire = models.ForeignKey(UserQuestionnaire, on_delete=models.CASCADE, related_name="questionnaire_answers")
     question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name="questionnaire_questions")
-
-    # Answers based on the type of question:
-    yes_no_answer = models.BooleanField(null=True, blank=True)  # For Yes/No type questions
-    text_answer = models.TextField(null=True, blank=True)  # For text input answers
-
-    def save(self, *args, **kwargs):
-        if self.question.type_name == 'YN':
-            self.text_answer = None
-
-        elif self.question.type_name == 'TEXT':
-            self.yes_no_answer = None
-
-        super(Answer, self).save(*args, **kwargs)
+    yes_no_answer = models.CharField(max_length=10, choices=ANSWER, null=True, blank=True)
+    text_answer = models.TextField(null=True, blank=True)
 
     def __str__(self):
         return f"Answer to {self.question} by {self.user_questionnaire.user.username}"

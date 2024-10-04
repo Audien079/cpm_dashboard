@@ -64,6 +64,26 @@ class SendQuestionnaire(TemplateView):
         return context_data
 
 
+class NewQuestionnaire(TemplateView):
+    """
+    Success page to redirect to user
+    """
+    template_name = "user/new_questionnaires.html"
+
+    def get(self, request, *args, **kwargs):
+        questionnaire = UserQuestionnaire.objects.filter(id=self.kwargs.get("pk")).first()
+        if questionnaire.is_completed:
+            return redirect('registered_questionnaire')
+        else:
+            return super().get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context_data = super().get_context_data(**kwargs)
+        context_data["questions"] = Question.objects.all()
+        context_data["questionnire"] = self.kwargs.get("pk")
+        return context_data
+
+
 class SaveQuestionnaire(View):
     """
     Save Questionnaire
@@ -224,3 +244,43 @@ def modify_user_phone(request):
     user.phone = updated_phone
     user.save()
     return JsonResponse({"message": "success", "data": "New phone number is saved"})
+
+
+@require_POST
+def save_questions(request):
+    """
+    Save questions
+    """
+    if request.method != "POST" and not request.is_ajax():
+        return JsonResponse({"message": "Request method is not valid"})
+
+    questionnaire_id = request.POST.get("questionnaire")
+    answer = request.POST.get("answer")
+    info = request.POST.get("info")
+    question_id = request.POST.get("question_id")
+    questionnaire = UserQuestionnaire.objects.get(id=questionnaire_id)
+    question = Question.objects.get(id=question_id)
+
+    obj, _ = Answer.objects.get_or_create(
+        user_questionnaire=questionnaire,
+        question=question
+    )
+    obj.yes_no_answer = answer.upper()
+    obj.text_answer = info
+    obj.save()
+
+    return JsonResponse({"message": "success", "data": "Data saved"})
+
+
+class CompleteQuestionnaire(View):
+    """
+    Complete questions
+    """
+
+    def post(self, request):
+        questionnaire_id = request.GET.get("qnr")
+        questionnaire = UserQuestionnaire.objects.get(id=questionnaire_id)
+        questionnaire.is_completed = True
+        questionnaire.test_date = timezone.now()
+        questionnaire.save()
+        return redirect(reverse('success_questionnaire'))
