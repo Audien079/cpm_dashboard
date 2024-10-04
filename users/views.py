@@ -46,29 +46,9 @@ class SignUpView(CreateView):
 
 class SendQuestionnaire(TemplateView):
     """
-    Sends questionare to user
-    """
-    template_name = 'user/send_questions.html'
-
-    def get(self, request, *args, **kwargs):
-        questionnaire = UserQuestionnaire.objects.filter(id=self.kwargs.get("pk")).first()
-        if questionnaire.is_completed:
-            return redirect('registered_questionnaire')
-        else:
-            return super().get(request, *args, **kwargs)
-
-    def get_context_data(self, **kwargs):
-        context_data = super().get_context_data(**kwargs)
-        context_data["questions"] = Question.objects.all()
-        context_data["questionnire"] = self.kwargs.get("pk")
-        return context_data
-
-
-class NewQuestionnaire(TemplateView):
-    """
     Success page to redirect to user
     """
-    template_name = "user/new_questionnaires.html"
+    template_name = "user/send_questions.html"
 
     def get(self, request, *args, **kwargs):
         questionnaire = UserQuestionnaire.objects.filter(id=self.kwargs.get("pk")).first()
@@ -82,36 +62,6 @@ class NewQuestionnaire(TemplateView):
         context_data["questions"] = Question.objects.all()
         context_data["questionnire"] = self.kwargs.get("pk")
         return context_data
-
-
-class SaveQuestionnaire(View):
-    """
-    Save Questionnaire
-    """
-
-    def post(self, request):
-        data = request.POST
-        questionnaire_id = request.GET.get("qnr")
-        questionnaire = UserQuestionnaire.objects.get(id=questionnaire_id)
-        data_keys = data.keys()
-        for key in data_keys:
-            if key.startswith("qn"):
-                question = Question.objects.get(id=key[3:])
-
-                if data[key] == "yes":
-                    yn = True
-                else:
-                    yn = False
-
-                Answer.objects.create(
-                    user_questionnaire=questionnaire,
-                    question=question,
-                    yes_no_answer=yn
-                )
-        questionnaire.is_completed = True
-        questionnaire.test_date = timezone.now()
-        questionnaire.save()
-        return redirect(reverse('success_questionnaire'))
 
 
 class AdminUsersView(ListView):
@@ -266,7 +216,11 @@ def save_questions(request):
         question=question
     )
     obj.yes_no_answer = answer.upper()
-    obj.text_answer = info
+
+    if answer.upper() == "YES":
+        obj.text_answer = info
+    else:
+        obj.text_answer = None
     obj.save()
 
     return JsonResponse({"message": "success", "data": "Data saved"})

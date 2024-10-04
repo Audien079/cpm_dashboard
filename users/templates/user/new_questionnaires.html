@@ -34,10 +34,6 @@
             display: block;
         }
 
-        .answer-box {
-            margin-top: 10px;
-        }
-
         .additional-info {
             display: none;
             margin-top: 10px;
@@ -65,24 +61,6 @@
             margin-top: 20px;
             display: flex;
             justify-content: space-between;
-        }
-        .button-group {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 40px;
-        }
-
-        .button-group button {
-            padding: 10px 20px;
-            font-size: 16px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            cursor: pointer;
-            background-color: white;
-        }
-
-        .button-group button:hover {
-            background-color: #f0f0f0;
         }
 
         .answer-buttons {
@@ -245,7 +223,7 @@
     // Show questions when "Get Started" is clicked
     document.getElementById('startBtn').addEventListener('click', function() {
         document.getElementById('welcomeScreen').style.display = 'none';
-        document.querySelector(`[data-question="11"]`).classList.add('active');
+        document.querySelector(`[data-question="${currentQuestion}"]`).classList.add('active');
         document.querySelector('.navigation-buttons').style.display = 'flex';
         document.querySelector('.custom-progress-bar').style.display = 'flex';
     });
@@ -287,10 +265,10 @@
 
         if (currentIndex < totalQuestions - 1) {
             let currentQuestion = questionArray[currentIndex];
-            if (currentQuestionId == '13' && answer === 'No') {
+            if (currentIndex == 2 && answer === 'No') {
                 currentIndex = 8
             }
-            if (currentQuestionId == '20' && answer === 'No') {
+            if (currentIndex == 9 && answer === 'No') {
                 currentIndex = 20
                 $('.question-box').removeClass('active');
                 $('.navigation-buttons').hide();
@@ -319,6 +297,22 @@
         $('.custom-progress-bar').show();
         if (currentIndex > 0) {
             let currentQuestion = questionArray[currentIndex];
+            console.log(currentIndex, ' s')
+
+            let thirdQuestionId = questionArray[2];
+            const thirdAnswer = $(`[data-question="${thirdQuestionId}"] .answer-buttons button.selected`);
+            const answer_3 = thirdAnswer.attr('data-value');
+            console.log(answer_3, ' sda')
+            if (currentIndex == 9 && answer_3 === 'No') {
+                currentIndex = 3
+            }
+            if (currentIndex == 21 && answer_3 === 'No') {
+                currentIndex = 10
+                $('.question-box').removeClass('active');
+                $('.navigation-buttons').show();
+                $('.custom-progress-bar').show();
+                $('#finishScreen').hide();
+            }
             let prevQuestion = questionArray[--currentIndex];
 
             $(`[data-question="${currentQuestion}"]`).removeClass('active');
