@@ -14,6 +14,16 @@ ANSWER = (
 )
 
 
+class InfoOption(models.Model):
+    """
+    Accept info at this options
+    """
+    info_at = models.CharField(max_length=10)
+
+    def __str__(self):
+        return self.info_at
+
+
 class Question(BaseModel):
     """
     The actual question text and its type
@@ -21,6 +31,10 @@ class Question(BaseModel):
     question_text = models.TextField()
     parent_question = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name="sub_questions")
     order = models.CharField(max_length=3, null=True, blank=True)
+    options = models.IntegerField(default=2)
+    info_required = models.BooleanField(default=False)
+    info_at = models.ManyToManyField(InfoOption, related_name="info_at_options", null=True, blank=True)
+    follow_up = models.TextField(null=True, blank=True)
 
     def __str__(self):
         return self.question_text

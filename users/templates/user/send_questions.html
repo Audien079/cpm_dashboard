@@ -157,15 +157,17 @@
         <div class="question-box" data-question="{{question.id}}">
             <h4>{{ question.custom_order }}. {{question.question_text}}:</h4>
             <div class="answer-buttons">
-                <button class="ans_button" data-order="{{question.id}}" type="button" data-value="Yes">Yes</button>
-                <button class="ans_button" data-order="{{question.id}}" type="button" data-value="No">No</button>
-                <button class="ans_button" data-order="{{question.id}}" type="button" data-value="Maybe">Maybe</button>
+                <button class="ans_button" data-required="{{question.info_required}}" data-info="{{question.info_at.all}}" data-order="{{question.id}}" type="button" data-value="Yes">Yes</button>
+                <button class="ans_button" data-required="{{question.info_required}}" data-info="{{question.info_at.all}}" data-order="{{question.id}}" type="button" data-value="No">No</button>
+                {% if question.options == 3 %}
+                    <button class="ans_button" data-required="{{question.info_required}}" data-info="{{question.info_at.all}}" data-order="{{question.id}}" type="button" data-value="Maybe">Maybe</button>
+                {% endif %}
             </div>
            <!-- <div class="additional-info info{{question.order}}">
                 <label>Please provide your updated information: <input type="text" name="q{{question.order}}_details"></label>
             </div>  -->
             <div class="input-container additional-info info{{question.id}}">
-                <label for="updated-info{{question.id}}">Please provide your updated information:</label>
+                <label for="updated-info{{question.id}}">{{question.follow_up}}:</label>
                 <textarea id="updated-info{{question.id}}" placeholder=""></textarea>
             </div>
         </div>
@@ -211,27 +213,6 @@
     const totalQuestions = $('.question-box').length;
     let currentIndex = 0;
 
-    // Show/hide additional info for "Yes" answer
-    document.querySelectorAll('input[type="radio"]').forEach(input => {
-        input.addEventListener('change', function () {
-            const parent = this.closest('.question-box');
-            const additionalInfo = parent.querySelector('.additional-info');
-            if (this.value === 'Yes') {
-                additionalInfo.style.display = 'block';
-            } else {
-                additionalInfo.style.display = 'none';
-            }
-        });
-    });
-    $('.ans_button').click(function(){
-        qid = $(this).attr('data-order');
-        if ($(this).attr('data-value') == 'Yes') {
-            $('.info' + qid).show();
-        } else {
-            $('.info' + qid).hide();
-        }
-    })
-
     // Show questions when "Get Started" is clicked
     document.getElementById('startBtn').addEventListener('click', function() {
         document.getElementById('welcomeScreen').style.display = 'none';
@@ -245,6 +226,8 @@
     function nextQuestion() {
         let currentQuestionId = questionArray[currentIndex];
         const selectedAnswer = $(`[data-question="${currentQuestionId}"] .answer-buttons button.selected`);
+        const additionalDataAt = selectedAnswer.attr('data-info');
+        const additionalDataRequired = selectedAnswer.attr('data-required');
 
         // Check if an answer is selected
         if (selectedAnswer.length === 0) {
@@ -252,8 +235,8 @@
             return;
         }
 
-        // Check if the answer is 'Yes' and additional info is filled
-        if (selectedAnswer.attr('data-value') === 'Yes') {
+        // Check if the answer is in additionalDataAt and additional info is filled
+        if (additionalDataAt.toLowerCase().includes(selectedAnswer.attr('data-value').toLowerCase())) {
             const additionalInfo = $(`.info${currentQuestionId} textarea`).val();
             if (!additionalInfo.trim()) {
                 showError('Please provide additional information.');
@@ -379,14 +362,18 @@
         $(this).addClass('selected');
 
         // Store selected value (if needed, e.g., in a hidden input)
-        const selectedValue = $(this).data('value');
+        const selectedValue = $(this).data('value').toLowerCase();
+        const additionalDataAt = $(this).attr('data-info').toLowerCase();
+        const additionalDataRequired = $(this).attr('data-required');
 
-        // Show or hide additional info if 'Yes' is selected
-        const qid = $(this).attr('data-order');
-        if (selectedValue === 'Yes') {
-            $(`.info${qid}`).show();
-        } else {
-            $(`.info${qid}`).hide();
+        // Show or hide additional info if in additionalDataAt is selected
+        if (additionalDataRequired == 'True'){
+            const qid = $(this).attr('data-order');
+            if (additionalDataAt.includes(selectedValue)) {
+                $(`.info${qid}`).show();
+            } else {
+                $(`.info${qid}`).hide();
+            }
         }
     });
 

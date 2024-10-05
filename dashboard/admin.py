@@ -1,5 +1,5 @@
 from django.contrib import admin
-from dashboard.models import Question, UserQuestionnaire, Answer, Activity
+from dashboard.models import Question, UserQuestionnaire, Answer, Activity, InfoOption
 
 
 @admin.register(Question)
@@ -21,6 +21,15 @@ class UserQuestionnaireAdmin(admin.ModelAdmin):
 
     list_display = ["token_id", "user", "test_date"]
     search_fields = ["user"]
+
+
+@admin.register(InfoOption)
+class InfoOptionAdmin(admin.ModelAdmin):
+    """
+    InfoOption data view in admin panel
+    """
+
+    list_display = ["info_at"]
 
 
 @admin.register(Answer)
