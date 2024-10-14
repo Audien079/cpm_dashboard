@@ -19,7 +19,7 @@ class ClientView(LoginRequiredMixin, ListView):
     #     from dashboard.models import UserQuestionnaire
     #     import os
     #     from dashboard.utils import email_questionnaire
-    #     user_obj = User.objects.filter(pk=2).first()
+    #     user_obj = User.objects.filter(pk=3).first()
     #
     #     questionnaire = UserQuestionnaire.objects.create(user=user_obj)
     #     Activity.objects.create(user=user_obj, questionnaire=questionnaire)

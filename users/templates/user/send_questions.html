@@ -267,7 +267,6 @@
                 $('.navigation-buttons').hide();
                 $('.custom-progress-bar').hide();
                 $('#finishScreen').show();
-                // updateReviewScreen();
             }
             if (currentIndex == 19) {
                 section4Process = 'true'
@@ -282,17 +281,20 @@
             $('.navigation-buttons').hide();
             $('.custom-progress-bar').hide();
             $('#finishScreen').show();
-            // updateReviewScreen();
         }
         const fourthAnswer = $(`[data-question="${fourthQuestionId}"] .answer-buttons button.selected`);
         const answer_4 = fourthAnswer.attr('data-value');
         console.log(currentIndex, ' orpr1111')
         if (currentIndex == 21){
             $('#questionnaireForm').hide();
-        } else if (currentIndex == 20 && answer_4 === 'Yes'){
-            $('#questionnaireForm').hide();
         } else{
             $('#questionnaireForm').show();
+        }
+
+        if ($('#finishScreen').css('display') === 'none') {
+            $('#questionnaireForm').show();
+        } else {
+            $('#questionnaireForm').hide();
         }
 
         $('#prevBtn').prop('disabled', false);
@@ -312,6 +314,7 @@
             const fourthAnswer = $(`[data-question="${fourthQuestionId}"] .answer-buttons button.selected`);
             const answer_3 = thirdAnswer.attr('data-value');
             const answer_4 = fourthAnswer.attr('data-value');
+            console.log(currentIndex, ' ututq')
             if (currentIndex == 9 && answer_3 === 'No') {
                 currentIndex = 3
             }
