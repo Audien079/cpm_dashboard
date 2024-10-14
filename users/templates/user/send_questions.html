@@ -155,7 +155,7 @@
         <!-- Question 1 -->
         {% for question in questions %}
         <div class="question-box" data-question="{{question.id}}">
-            <h4>{{ question.custom_order }}. {{question.question_text}}:</h4>
+            <h4 class="question-display">{{ question.custom_order }}. {{question.question_text}}:</h4>
             <div class="answer-buttons">
                 <button class="ans_button" data-required="{{question.info_required}}" data-info="{{question.info_at.all}}" data-order="{{question.id}}" type="button" data-value="Yes">Yes</button>
                 <button class="ans_button" data-required="{{question.info_required}}" data-info="{{question.info_at.all}}" data-order="{{question.id}}" type="button" data-value="No">No</button>
@@ -200,6 +200,8 @@
     let questionArray = [];
     let questionnaire = $('#questionnaireForm').attr('data-questionnaire');
     let currentQuestion = $('.question-box').first().attr("data-question");
+    let section4Process = 'false'
+    let selectedAnswers = {};
     $('.question-box').each(function(){
         var qn_id = $(this).attr("data-question");
         questionArray.push(qn_id);
@@ -212,6 +214,8 @@
     });
     const totalQuestions = $('.question-box').length;
     let currentIndex = 0;
+    let thirdQuestionId = questionArray[2];
+    let fourthQuestionId = questionArray[9];
 
     // Show questions when "Get Started" is clicked
     document.getElementById('startBtn').addEventListener('click', function() {
@@ -235,14 +239,6 @@
             return;
         }
 
-        // Check if the answer is in additionalDataAt and additional info is filled
-        if (additionalDataAt.toLowerCase().includes(selectedAnswer.attr('data-value').toLowerCase())) {
-            const additionalInfo = $(`.info${currentQuestionId} textarea`).val();
-            if (!additionalInfo.trim()) {
-                showError('Please provide additional information.');
-                return;
-            }
-        }
         hideError();
         const answer = selectedAnswer.attr('data-value');
         const additionalInfo = $(`.info${currentQuestionId} textarea`).val();
@@ -258,6 +254,7 @@
                 'csrfmiddlewaretoken': '{{ csrf_token }}'
             }
         });
+        console.log(currentIndex, ' orpr')
 
         if (currentIndex < totalQuestions - 1) {
             let currentQuestion = questionArray[currentIndex];
@@ -270,6 +267,10 @@
                 $('.navigation-buttons').hide();
                 $('.custom-progress-bar').hide();
                 $('#finishScreen').show();
+                // updateReviewScreen();
+            }
+            if (currentIndex == 19) {
+                section4Process = 'true'
             }
             let nextQuestion = questionArray[++currentIndex];
             $(`[data-question="${currentQuestion}"]`).removeClass('active');
@@ -281,14 +282,21 @@
             $('.navigation-buttons').hide();
             $('.custom-progress-bar').hide();
             $('#finishScreen').show();
+            // updateReviewScreen();
         }
+        const fourthAnswer = $(`[data-question="${fourthQuestionId}"] .answer-buttons button.selected`);
+        const answer_4 = fourthAnswer.attr('data-value');
+        console.log(currentIndex, ' orpr1111')
         if (currentIndex == 21){
             $('#questionnaireForm').hide();
-        }else{
+        } else if (currentIndex == 20 && answer_4 === 'Yes'){
+            $('#questionnaireForm').hide();
+        } else{
             $('#questionnaireForm').show();
         }
 
         $('#prevBtn').prop('disabled', false);
+        checkQuestion();
     }
 
     // jQuery function to go to the previous question
@@ -300,20 +308,27 @@
         if (currentIndex > 0) {
             let currentQuestion = questionArray[currentIndex];
 
-            let thirdQuestionId = questionArray[2];
             const thirdAnswer = $(`[data-question="${thirdQuestionId}"] .answer-buttons button.selected`);
+            const fourthAnswer = $(`[data-question="${fourthQuestionId}"] .answer-buttons button.selected`);
             const answer_3 = thirdAnswer.attr('data-value');
+            const answer_4 = fourthAnswer.attr('data-value');
             if (currentIndex == 9 && answer_3 === 'No') {
                 currentIndex = 3
             }
-            if (currentIndex == 21 && answer_3 === 'No') {
-                currentIndex = 10
+            if (currentIndex == 21 && answer_4 === 'No') {
+                currentIndex = 10;
+                console.log("Inside");
                 $('.question-box').removeClass('active');
                 $('.navigation-buttons').show();
                 $('.custom-progress-bar').show();
                 $('#finishScreen').hide();
             }
-            let prevQuestion = questionArray[--currentIndex];
+            let prevQuestion;
+            if (currentIndex == 20 && answer_4 === 'Yes') {
+                prevQuestion = questionArray[currentIndex];
+            } else {
+                prevQuestion = questionArray[--currentIndex];
+            }
 
             $(`[data-question="${currentQuestion}"]`).removeClass('active');
             $(`[data-question="${prevQuestion}"]`).addClass('active');
@@ -328,6 +343,7 @@
 
         // Enable the "Next" button
         $('#nextBtn').prop('disabled', false);
+        checkQuestion();
     }
 
     // Show error message
@@ -353,6 +369,31 @@
     // Disable "Previous" button on first question by default
     document.getElementById('prevBtn').disabled = true;
 
+    function updateReviewScreen() {
+        console.log('Updating review screen with answers...');
+
+        // Clear the review screen
+        $('#reviewScreen .sections').empty();
+
+        // Loop through selected answers and append them to the review screen
+        $.each(selectedAnswers, function(questionId, answerData) {
+            let sectionHTML = `
+                <div class="review-section">
+                    <h4>${answerData.questionText}</h4>
+                    <ul>
+                        <li>Answer: ${answerData.answer}</li>
+                        ${answerData.additionalInfo ? `<li>Additional Info: ${answerData.additionalInfo}</li>` : ''}
+                    </ul>
+                </div>
+            `;
+
+            $('#reviewScreen .sections').append(sectionHTML);
+        });
+
+        // Display the review screen
+        $('#reviewScreen').show();
+    }
+
     // Select answer function
     $('.answer-buttons button').click(function() {
         // Remove 'selected' class from all buttons of the current question
@@ -365,6 +406,16 @@
         const selectedValue = $(this).data('value').toLowerCase();
         const additionalDataAt = $(this).attr('data-info').toLowerCase();
         const additionalDataRequired = $(this).attr('data-required');
+
+        const questionId = $(this).closest('.question-box').attr('data-question');
+        const questionText = $(this).closest('.question-box').find('.question-display').text();
+        const additionalInfo = $(`.info${questionId} textarea`).val() || '';
+
+        selectedAnswers[questionId] = {
+            questionText: questionText,
+            answer: selectedValue,
+            additionalInfo: additionalInfo
+        };
 
         // Show or hide additional info if in additionalDataAt is selected
         if (additionalDataRequired == 'True'){
@@ -380,5 +431,10 @@
     $('#finishBtn').click(function(){
         $('#questionnaireForm').submit();
     })
+
+    function checkQuestion(){
+        var sda = $('.question-box active')
+        console.log(sda)
+    }
 </script>
 {% endblock %}

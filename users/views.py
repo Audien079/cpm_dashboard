@@ -10,7 +10,7 @@ from django.contrib.auth.views import LoginView
 from django.views.decorators.http import require_POST
 from django.http import JsonResponse
 from django.views.generic import TemplateView, View, ListView
-from dashboard.models import UserQuestionnaire, Question, Answer
+from dashboard.models import UserQuestionnaire, Question, Answer, Activity
 from dashboard.utils import email_questionnaire
 from users.models import User
 from users.utils import is_valid_email

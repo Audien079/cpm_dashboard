@@ -49,6 +49,19 @@ class Question(BaseModel):
 
         return self.order
 
+    def question_answer(self, qnr_id):
+        """
+        Question Answer
+        """
+        return self.questionnaire_questions.filter(user_questionnaire=qnr_id).first()
+
+    @property
+    def follow_up_questions(self):
+        """
+        All child questions
+        """
+        return self.sub_questions.all().order_by('order')
+
 
 class UserQuestionnaire(BaseModel):
     """
@@ -72,7 +85,7 @@ class UserQuestionnaire(BaseModel):
     @property
     def yes_answers(self):
         """Returns all the yes answers"""
-        return self.questionnaire_answers.filter(yes_no_answer=True)
+        return self.questionnaire_answers.filter(yes_no_answer="YES")
 
 
 class Answer(BaseModel):

@@ -2,7 +2,7 @@ from django.urls import reverse_lazy
 from users.models import User
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import ListView, TemplateView
-from dashboard.models import Activity
+from dashboard.models import Activity, UserQuestionnaire, Question
 
 
 class ClientView(LoginRequiredMixin, ListView):
@@ -32,7 +32,7 @@ class UserDetailView(LoginRequiredMixin, ListView):
     User detail view
     """
     login_url = reverse_lazy("login")
-    template_name = "dashboard/user_detail.html"
+    template_name = "dashboard/user_detail_new.html"
     model = User
 
     def get_context_data(self, **kwargs):
@@ -45,6 +45,7 @@ class UserDetailView(LoginRequiredMixin, ListView):
         if latest_questionnaire:
             context["answers"] = latest_questionnaire.questionnaire_answers.all()
 
+        context["questionnaires"] = all_questionnaires
         context["activities"] = activities
         context["user"] = user
 
@@ -67,3 +68,18 @@ class RegisteredQuestionnaire(TemplateView):
     Success page to redirect to user
     """
     template_name = "dashboard/registered_questionnaire.html"
+
+
+class DetailedQuestionnaire(TemplateView):
+    """
+    Success page to redirect to user
+    """
+    template_name = "dashboard/detail_questionnaire.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        questionnaire = UserQuestionnaire.objects.get(id=self.kwargs["id"])
+        sections = Question.objects.filter(parent_question__isnull=True).order_by('id')
+        context["questionnaire"] = questionnaire
+        context["sections"] = sections
+        return context
