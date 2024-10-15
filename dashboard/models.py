@@ -45,7 +45,7 @@ class Question(BaseModel):
         Returns prder of questions
         """
         if self.parent_question:
-            return self.parent_question.order + '.' + self.order
+            return self.parent_question.order + self.order
 
         return self.order
 

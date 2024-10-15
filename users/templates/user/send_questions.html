@@ -1,6 +1,6 @@
 {% extends "layouts/questionnaire_base.html" %}
 {% block header %}
-<title>CPM Questionare</title>
+<title>CPA Questionare</title>
 {% endblock %}
 {% load static %}
 
@@ -216,6 +216,15 @@
     let currentIndex = 0;
     let thirdQuestionId = questionArray[2];
     let fourthQuestionId = questionArray[9];
+
+    const today = new Date();
+    // Format date to mm/dd/yyyy
+    const formattedDate = (today.getMonth() + 1).toString().padStart(2, '0') + '/' +
+                          today.getDate().toString().padStart(2, '0') + '/' +
+                          today.getFullYear();
+    $('h4:contains("[today]")').html(function(_, html) {
+        return html.replace("[today]", formattedDate);
+    });
 
     // Show questions when "Get Started" is clicked
     document.getElementById('startBtn').addEventListener('click', function() {
