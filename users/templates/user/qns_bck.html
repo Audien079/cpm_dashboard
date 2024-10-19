@@ -139,69 +139,6 @@
             border-radius: 4px;
             resize: none;
         }
-
-        .sections {
-            background-color: #ffffff;
-            padding: 20px;
-            border-radius: 5px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-            margin-bottom: 20px;
-        }
-
-        /* Collapsible section button */
-        .collapsible {
-            background-color: ##d0d2d6;
-            color: black;
-            cursor: pointer;
-            padding: 15px;
-            border: none;
-            text-align: left;
-            font-size: 16px;
-            width: 100%;
-            border-radius: 5px;
-            outline: none;
-            margin-bottom: 10px;
-        }
-
-        .collapsible.active {
-            background-color: #b7b9bb;
-        }
-
-        /* Sub-content style */
-        .sub-content {
-            display: none;
-            padding: 20px;
-            background-color: #f8f9fa;
-            margin-top: 10px;
-            border-left: 5px solid #b7b9bb;
-            border-radius: 5px;
-            transition: all 0.3s ease;
-        }
-
-        .sub-content.show {
-            background-color: #ffffff;
-            padding: 25px;
-            border-radius: 8px;
-            border-left: 5px solid #0056b3;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-            margin-bottom: 15px;
-        }
-
-        .sub-content ul {
-            margin-left: 35px;
-            padding-left: 0;
-        }
-
-        .sub-content ul li {
-            padding: 2px 0;
-            color: #333;
-            text-align: left;
-        }
-
-        .sub-section {
-            margin-bottom: 0px;
-            text-align: left;
-        }
     </style>
 {% endblock %}
 {% block content %}
@@ -209,7 +146,7 @@
     <!-- Welcome Screen -->
     <div id="welcomeScreen" class="welcome-box page-buttons">
         <h1>Questionnaire</h1>
-        <p>Thank you for taking the time to answer these questions. The following questions will help us determine if there have been any relevant changes in your financial situation, so we can provide you with custom tailored support.</p>
+        <p>Thank you for taking the time to answer these questions. The following questions will help us determine if there have been any relevant changes in your financial situation so we can provide you with custom tailored support.</p>
         <button id="startBtn">Get Started  &rarr;</button>
     </div>
 
@@ -248,21 +185,11 @@
             <div class="custom-progress-bar"></div>
         </div>
     </form>
-    <div id="reviewScreen" style="display:none;">
-        <h2>Review Your Answers</h2>
-        <div id="reviewSection" class="sections" style="margin-top: 20px;">
-
-        </div>
-        <h6>Press "Return" to go back and change one of your answers, or "Next" to go on finish page</h6>
-        <div class="avigation-buttons page-buttons">
-            <button type="button" id="prevBtnn" onclick="prevQuestion()">Return</button>
-            <button type="button" id="submitBtn" >Next</button>
-        </div>
-    </div>
     <div id="finishScreen" class="finish-box page-buttons" style="display:none;">
         <h2>Thank You for Completing the Questionnaire!</h2>
         <p>You will receive a copy of your answers via e-mail</p>
         <div class="avigation-buttons">
+            <button type="button" id="prevFinishBtn" onclick="prevQuestion()">Previous</button>
             <button type="submit" id="finishBtn">Finish</button>
         </div>
     </div>
@@ -275,66 +202,6 @@
     let currentQuestion = $('.question-box').first().attr("data-question");
     let section4Process = 'false'
     let selectedAnswers = {};
-
-    function loadReviewScreen() {
-    // Hide the welcome screen and show the review screen
-
-    // Perform the AJAX request to get review questions
-    $.ajax({
-        url: "{% url 'review_questions' %}",
-        type: 'GET',
-        data: {
-            'questionnaire': 18,
-            'csrfmiddlewaretoken': '{{ csrf_token }}'
-        },
-        success: function(response) {
-            // Iterate through each item in the response
-            data = response.data
-            $('#reviewSection').empty();
-            $.each(data, function(index, item) {
-                childrens = item.childrens
-                // Build the collapsible section for each item
-
-                var itemHtml = `
-                    <button class="collapsible"> + ` + item.header + `</button>
-                    <div class="sub-content">
-                        <p class="sub-section">${item.order} ${item.question}</p>
-                        <ul>
-                            <li>${item.yes_no_answer}</li>`;
-
-                // Add text answer to the list if available
-                if (item.text_answer) {
-                    itemHtml += `<li>${item.text_answer}</li>`;
-                }
-
-                itemHtml += `</ul>`;
-
-                // Handle child questions if present
-                if (item.childrens && item.childrens.length > 0) {
-                    $.each(childrens, function(idx, child) {
-                        itemHtml += `
-                        <p class="sub-section">${item.order}${child.question__order} ${child.question__question_text}</p>
-                        <ul>
-                            <li>${child.yes_no_answer}</li>`;
-
-                        // Add child text answer if available
-                        if (child.text_answer) {
-                            itemHtml += `<li>${child.text_answer}</li>`;
-                        }
-
-                        itemHtml += `</ul>`;
-                    });
-                }
-
-                itemHtml += `</div>`;
-
-                // Append the generated HTML to the review section
-                $('#reviewSection').append(itemHtml);
-            });
-        }
-    });
-}
-
     $('.question-box').each(function(){
         var qn_id = $(this).attr("data-question");
         questionArray.push(qn_id);
@@ -396,6 +263,7 @@
                 'csrfmiddlewaretoken': '{{ csrf_token }}'
             }
         });
+        console.log(currentIndex, ' orpr')
 
         if (currentIndex < totalQuestions - 1) {
             let currentQuestion = questionArray[currentIndex];
@@ -407,8 +275,7 @@
                 $('.question-box').removeClass('active');
                 $('.navigation-buttons').hide();
                 $('.custom-progress-bar').hide();
-                // $('#finishScreen').show();
-                $('#reviewScreen').show();
+                $('#finishScreen').show();
             }
             if (currentIndex == 19) {
                 section4Process = 'true'
@@ -422,32 +289,30 @@
             $('.question-box').removeClass('active');
             $('.navigation-buttons').hide();
             $('.custom-progress-bar').hide();
-            // $('#finishScreen').show();
-            $('#reviewScreen').show();
+            $('#finishScreen').show();
         }
         const fourthAnswer = $(`[data-question="${fourthQuestionId}"] .answer-buttons button.selected`);
         const answer_4 = fourthAnswer.attr('data-value');
+        console.log(currentIndex, ' orpr1111')
         if (currentIndex == 21){
             $('#questionnaireForm').hide();
         } else{
             $('#questionnaireForm').show();
         }
 
-        // if ($('#finishScreen').css('display') === 'none') {
-        if ($('#reviewScreen').css('display') === 'none') {
+        if ($('#finishScreen').css('display') === 'none') {
             $('#questionnaireForm').show();
         } else {
             $('#questionnaireForm').hide();
-            loadReviewScreen();
         }
 
         $('#prevBtn').prop('disabled', false);
+        checkQuestion();
     }
 
     // jQuery function to go to the previous question
     function prevQuestion() {
-        // $('#finishScreen').hide();
-        $('#reviewScreen').hide();
+        $('#finishScreen').hide();
         $('.navigation-buttons').show();
         $('.custom-progress-bar').show();
         $('#questionnaireForm').show();
@@ -458,16 +323,17 @@
             const fourthAnswer = $(`[data-question="${fourthQuestionId}"] .answer-buttons button.selected`);
             const answer_3 = thirdAnswer.attr('data-value');
             const answer_4 = fourthAnswer.attr('data-value');
+            console.log(currentIndex, ' ututq')
             if (currentIndex == 9 && answer_3 === 'No') {
                 currentIndex = 3
             }
             if (currentIndex == 21 && answer_4 === 'No') {
                 currentIndex = 10;
+                console.log("Inside");
                 $('.question-box').removeClass('active');
                 $('.navigation-buttons').show();
                 $('.custom-progress-bar').show();
-                // $('#finishScreen').hide();
-                $('#reviewScreen').hide();
+                $('#finishScreen').hide();
             }
             let prevQuestion;
             if (currentIndex == 20 && answer_4 === 'Yes') {
@@ -489,6 +355,7 @@
 
         // Enable the "Next" button
         $('#nextBtn').prop('disabled', false);
+        checkQuestion();
     }
 
     // Show error message
@@ -515,6 +382,7 @@
     document.getElementById('prevBtn').disabled = true;
 
     function updateReviewScreen() {
+        console.log('Updating review screen with answers...');
 
         // Clear the review screen
         $('#reviewScreen .sections').empty();
@@ -576,28 +444,9 @@
         $('#questionnaireForm').submit();
     })
 
-    $('#submitBtn').click(function(){
-        $('#reviewScreen').hide();
-        $('#finishScreen').show();
-    })
-
-    $(document).on('click', '.collapsible', function() {
-        // Toggle the "active" class to the clicked button
-        $(this).toggleClass('active');
-
-        // Toggle the sub-content visibility
-        var content = $(this).next('.sub-content');
-        // debugger;
-
-        if ($(content).css('display') === "block") {
-            $(content).css('display', 'none');
-            updated_sign = $(this).text().replace('-', '+');
-        } else {
-            $(content).css('display', 'block');
-            updated_sign = $(this).text().replace('+', '-');
-        }
-
-        $(this).html(updated_sign)
-    });
+    function checkQuestion(){
+        var sda = $('.question-box active')
+        console.log(sda)
+    }
 </script>
 {% endblock %}

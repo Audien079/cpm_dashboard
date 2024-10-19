@@ -3,7 +3,7 @@ from django.contrib.auth.views import LogoutView
 from django.views.generic.base import RedirectView
 from users.views import CustomLoginView, SignUpView, SendQuestionnaire, send_email_questionnaire\
     , modify_user_address, modify_user_dob, modify_user_email, modify_user_phone, AdminUsersView\
-    , save_questions, CompleteQuestionnaire
+    , save_questions, CompleteQuestionnaire, get_review_questions
 
 
 urlpatterns = [
@@ -20,4 +20,5 @@ urlpatterns = [
     path("modify/phone/", modify_user_phone, name="modify_user_phone"),
     path("save/questions/", save_questions, name="save_questions"),
     path("complete/questionnaire/", CompleteQuestionnaire.as_view(), name="complete_questionnaire"),
+    path("review/questions/", get_review_questions, name="review_questions"),
 ]

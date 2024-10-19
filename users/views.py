@@ -61,6 +61,7 @@ class SendQuestionnaire(TemplateView):
         context_data = super().get_context_data(**kwargs)
         context_data["questions"] = Question.objects.all()
         context_data["questionnire"] = self.kwargs.get("pk")
+        context_data["sections"] = Question.objects.filter(parent_question__isnull=True).order_by('id')
         return context_data
 
 
@@ -238,3 +239,63 @@ class CompleteQuestionnaire(View):
         questionnaire.test_date = timezone.now()
         questionnaire.save()
         return redirect(reverse('success_questionnaire'))
+
+
+def get_review_questions(request):
+    """
+    Get review questions optimized
+    """
+    questionnaire_id = request.GET.get("questionnaire")
+
+    # Use select_related to optimize fetching related models and avoid N+1 problem
+    try:
+        questionnaire = UserQuestionnaire.objects.get(id=questionnaire_id)
+    except UserQuestionnaire.DoesNotExist:
+        return JsonResponse({"message": "Questionnaire not found"}, status=404)
+
+    # Fetch all related answers and prefetch related questions and parent questions in one go
+    answers = list(
+        questionnaire.questionnaire_answers.select_related('question__parent_question')
+        .values('id', 'user_questionnaire_id', 'question_id', 'question__parent_question_id',
+                'question__question_text', 'question__order', 'yes_no_answer', 'text_answer')
+        .order_by('id')
+    )
+    current_date = datetime.now()
+    formatted_date = current_date.strftime("%m/%d/%Y")
+
+    # Section headers based on question order
+    section_headers = {
+        '1': "Section 1  Contact Information",
+        '2': "Section 2  Tax Return",
+        '3': "Section 3  Change in Business",
+        '4': "Section 4  Change in personal financial life"
+    }
+
+    output_list = []
+
+    # First pass: build the output list for the main questions (order 1 to 4)
+    for answer in answers:
+        answer["yes_no_answer"] = answer["yes_no_answer"].capitalize()
+        if answer['question__order'] in section_headers:
+            output_dict = {
+                "id": answer["id"],
+                "user_questionnaire_id": answer["user_questionnaire_id"],
+                "question_id": answer["question_id"],
+                "yes_no_answer": answer["yes_no_answer"].capitalize(),
+                "text_answer": answer["text_answer"],
+                "question": answer["question__question_text"].replace("[today]", formatted_date),
+                "order": answer["question__order"],
+                "header": section_headers[answer['question__order']],
+                "childrens": []
+            }
+            output_list.append(output_dict)
+
+    # Second pass: assign children to their parent questions
+    for output in output_list:
+        for answer in answers:
+            if (answer["question__parent_question_id"] == output["question_id"] and
+                    output["yes_no_answer"].lower() != "no"):
+                output["childrens"].append(answer)
+
+    print(output_list)
+    return JsonResponse({"message": "success", "data": output_list})
