@@ -59,9 +59,11 @@ class SendQuestionnaire(TemplateView):
 
     def get_context_data(self, **kwargs):
         context_data = super().get_context_data(**kwargs)
+        qnr_id = self.kwargs.get("pk")
         context_data["questions"] = Question.objects.all()
-        context_data["questionnire"] = self.kwargs.get("pk")
+        context_data["questionnaire"] = qnr_id
         context_data["sections"] = Question.objects.filter(parent_question__isnull=True).order_by('id')
+        context_data["user"] = UserQuestionnaire.objects.get(id=qnr_id).user
         return context_data
 
 
@@ -238,6 +240,14 @@ class CompleteQuestionnaire(View):
         questionnaire.is_completed = True
         questionnaire.test_date = timezone.now()
         questionnaire.save()
+        user = questionnaire.user
+        user.phone = request.POST.get("phone")
+        user.email = request.POST.get("email")
+        user.address = request.POST.get("address")
+        user.city = request.POST.get("city")
+        user.state = request.POST.get("state")
+        user.postal_code = request.POST.get("postal_code")
+        user.save()
         return redirect(reverse('success_questionnaire'))
 
 

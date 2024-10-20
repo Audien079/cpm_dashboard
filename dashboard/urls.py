@@ -1,6 +1,6 @@
 from django.urls import path
 from dashboard.views import ClientView, UserDetailView, SuccessQuestionnaire, RegisteredQuestionnaire \
-    , DetailedQuestionnaire
+    , DetailedQuestionnaire, SettingPage
 
 
 urlpatterns = [
@@ -9,4 +9,5 @@ urlpatterns = [
     path('success/response/', SuccessQuestionnaire.as_view(), name='success_questionnaire'),
     path('registered/response/', RegisteredQuestionnaire.as_view(), name='registered_questionnaire'),
     path('detail/questionnaire/<int:id>/', DetailedQuestionnaire.as_view(), name='detail_questionnaire'),
+    path('settings/', SettingPage.as_view(), name='settings'),
 ]

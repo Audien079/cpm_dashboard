@@ -83,3 +83,15 @@ class DetailedQuestionnaire(TemplateView):
         context["questionnaire"] = questionnaire
         context["sections"] = sections
         return context
+
+
+class SettingPage(TemplateView):
+    """
+    Settings page
+    """
+    template_name = "dashboard/settings.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["questionnaires"] = UserQuestionnaire.objects.all()
+        return context

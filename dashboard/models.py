@@ -33,7 +33,7 @@ class Question(BaseModel):
     order = models.CharField(max_length=3, null=True, blank=True)
     options = models.IntegerField(default=2)
     info_required = models.BooleanField(default=False)
-    info_at = models.ManyToManyField(InfoOption, related_name="info_at_options", null=True, blank=True)
+    info_at = models.ManyToManyField(InfoOption, related_name="info_at_options", blank=True)
     follow_up = models.TextField(null=True, blank=True)
 
     def __str__(self):

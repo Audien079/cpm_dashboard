@@ -202,6 +202,29 @@
             margin-bottom: 0px;
             text-align: left;
         }
+        .form-container {
+            width: 400px;
+            margin: 0 auto;
+            margin-top: 10px;
+        }
+        .form-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .form-group label {
+            width: 130px;
+            margin-right: 10px;
+            font-size: 14px;
+        }
+        .form-group input[type="text"],
+        .form-group input[type="email"],
+        .form-group select {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
     </style>
 {% endblock %}
 {% block content %}
@@ -213,7 +236,7 @@
         <button id="startBtn">Get Started  &rarr;</button>
     </div>
 
-    <form id="questionnaireForm" data-questionnaire="{{questionnire}}" method="POST" action="{% url 'complete_questionnaire' %}?qnr={{questionnire}}" style="width: 680px; display: none;">
+    <form id="questionnaireForm" data-questionnaire="{{questionnaire}}" method="POST" action="{% url 'complete_questionnaire' %}?qnr={{questionnaire}}" style="width: 680px; display: none;">
         {% csrf_token %}
         <!-- Question 1 -->
         {% for question in questions %}
@@ -235,7 +258,38 @@
             </div>
         </div>
         {% endfor %}
-        <!-- Add more questions (up to 10 questions) here... -->
+        <!-- Add more questions (up to 10 questions) here... style="display: none;" -->
+        <div class="form-container add-info{{question.id}}" style="display: none;">
+            <div class="form-group">
+                <label for="phone">Phone Number</label>
+                <input type="text" id="phone" name="phone" value="{{user.phone}}">
+            </div>
+
+            <div class="form-group">
+                <label for="email">E-mail address</label>
+                <input type="email" id="email" name="email" value="{{user.email|default:''}}">
+            </div>
+
+            <div class="form-group">
+                <label for="address">Address</label>
+                <input type="text" id="address" name="address" value="{{user.address|default:''}}">
+            </div>
+
+            <div class="form-group">
+                <label for="city">City</label>
+                <input type="text" id="city" name="city" value="{{user.city|default:''}}">
+            </div>
+
+            <div class="form-group">
+                <label for="state">State</label>
+                <input type="text" id="state" name="state" value="{{user.state|default:''}}">
+            </div>
+
+            <div class="form-group">
+                <label for="postal_code">ZIP Code</label>
+                <input type="text" id="postal_code" name="postal_code" value="{{user.postal_code|default:''}}">
+            </div>
+        </div>
 
         <!-- Navigation Buttons -->
         <div class="navigation-buttons page-buttons" style="display:none;">
@@ -347,6 +401,7 @@
     });
     const totalQuestions = $('.question-box').length;
     let currentIndex = 0;
+    let secondQuestionId = questionArray[1];
     let thirdQuestionId = questionArray[2];
     let fourthQuestionId = questionArray[9];
 
@@ -442,6 +497,9 @@
         }
 
         $('#prevBtn').prop('disabled', false);
+        if (currentIndex != 1){
+            $(".form-container").hide();
+        }
     }
 
     // jQuery function to go to the previous question
@@ -454,8 +512,10 @@
         if (currentIndex > 0) {
             let currentQuestion = questionArray[currentIndex];
 
+            const secondAnswer = $(`[data-question="${secondQuestionId}"] .answer-buttons button.selected`);
             const thirdAnswer = $(`[data-question="${thirdQuestionId}"] .answer-buttons button.selected`);
             const fourthAnswer = $(`[data-question="${fourthQuestionId}"] .answer-buttons button.selected`);
+            var answer_2 = secondAnswer.attr('data-value');
             const answer_3 = thirdAnswer.attr('data-value');
             const answer_4 = fourthAnswer.attr('data-value');
             if (currentIndex == 9 && answer_3 === 'No') {
@@ -489,6 +549,12 @@
 
         // Enable the "Next" button
         $('#nextBtn').prop('disabled', false);
+
+        if (currentIndex == 1 && answer_2 === 'No'){
+            $(".form-container").show();
+        } else {
+            $(".form-container").hide();
+        }
     }
 
     // Show error message
@@ -569,6 +635,13 @@
             } else {
                 $(`.info${qid}`).hide();
             }
+        }
+
+        if ((secondQuestionId == questionId) && selectedValue == 'no'){
+            $(".form-container").show();
+            $(`#updated-info${questionId}`).hide();
+        } else {
+            $(".form-container").hide();
         }
     });
 
