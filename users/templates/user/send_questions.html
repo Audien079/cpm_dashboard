@@ -338,7 +338,7 @@
         url: "{% url 'review_questions' %}",
         type: 'GET',
         data: {
-            'questionnaire': 18,
+            'questionnaire': questionnaire,
             'csrfmiddlewaretoken': '{{ csrf_token }}'
         },
         success: function(response) {

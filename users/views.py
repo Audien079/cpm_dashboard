@@ -307,5 +307,4 @@ def get_review_questions(request):
                     output["yes_no_answer"].lower() != "no"):
                 output["childrens"].append(answer)
 
-    print(output_list)
     return JsonResponse({"message": "success", "data": output_list})
