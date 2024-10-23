@@ -55,7 +55,7 @@
         .custom-progress-bar {
             width: 0;
             height: 100%;
-            background-color: #808080; /* Grey color */
+            background-color: #17274f;
             border-radius: 5px;
             transition: width 0.5s ease;
         }
@@ -241,7 +241,7 @@
         <!-- Question 1 -->
         {% for question in questions %}
         <div class="question-box" data-question="{{question.id}}">
-            <h4 class="question-display">{{ question.custom_order }}. {{question.question_text}}:</h4>
+            <h4 class="question-display">{{ question.custom_order }}. {{question.question_text}}</h4>
             <div class="answer-buttons">
                 <button class="ans_button" data-required="{{question.info_required}}" data-info="{{question.info_at.all}}" data-order="{{question.id}}" type="button" data-value="Yes">Yes</button>
                 <button class="ans_button" data-required="{{question.info_required}}" data-info="{{question.info_at.all}}" data-order="{{question.id}}" type="button" data-value="No">No</button>
@@ -401,6 +401,7 @@
     });
     const totalQuestions = $('.question-box').length;
     let currentIndex = 0;
+    let firstQuestionId = questionArray[0];
     let secondQuestionId = questionArray[1];
     let thirdQuestionId = questionArray[2];
     let fourthQuestionId = questionArray[9];
@@ -497,7 +498,7 @@
         }
 
         $('#prevBtn').prop('disabled', false);
-        if (currentIndex != 1){
+        if (currentIndex != 0){
             $(".form-container").hide();
         }
     }
@@ -512,9 +513,11 @@
         if (currentIndex > 0) {
             let currentQuestion = questionArray[currentIndex];
 
+            const firstAnswer = $(`[data-question="${firstQuestionId}"] .answer-buttons button.selected`);
             const secondAnswer = $(`[data-question="${secondQuestionId}"] .answer-buttons button.selected`);
             const thirdAnswer = $(`[data-question="${thirdQuestionId}"] .answer-buttons button.selected`);
             const fourthAnswer = $(`[data-question="${fourthQuestionId}"] .answer-buttons button.selected`);
+            var answer_1 = firstAnswer.attr('data-value');
             var answer_2 = secondAnswer.attr('data-value');
             const answer_3 = thirdAnswer.attr('data-value');
             const answer_4 = fourthAnswer.attr('data-value');
@@ -550,7 +553,7 @@
         // Enable the "Next" button
         $('#nextBtn').prop('disabled', false);
 
-        if (currentIndex == 1 && answer_2 === 'No'){
+        if (currentIndex == 0 && answer_1 === 'Yes'){
             $(".form-container").show();
         } else {
             $(".form-container").hide();
@@ -637,7 +640,7 @@
             }
         }
 
-        if ((secondQuestionId == questionId) && selectedValue == 'no'){
+        if ((firstQuestionId == questionId) && selectedValue == 'yes'){
             $(".form-container").show();
             $(`#updated-info${questionId}`).hide();
         } else {
