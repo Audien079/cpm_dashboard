@@ -22,7 +22,7 @@ class CustomLoginView(LoginView):
     """
     template_name = 'user/login.html'
     redirect_authenticated_user = True
-    success_url = reverse_lazy('clients')
+    success_url = reverse_lazy('home')
 
 
 class SignUpView(CreateView):

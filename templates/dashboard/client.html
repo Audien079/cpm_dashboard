@@ -1,86 +1,288 @@
-{% extends "layouts/top.html" %}
+{% extends 'layouts/top.html' %}
 {% load static %}
+{% load custom_filters %}
 {% block header %}
-<title>Clients</title>
+<title>Settings</title>
 {% endblock %}
 {% block style %}
-<script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
-<link href="{% static 'assets/css/apps/mailbox.css' %}" rel="stylesheet" type="text/css"/>
-<style>
-.table-head {
-    background-color: #dce0f7 !important;
-}
-
-.table-td {
-    padding-top: 20px !important;
-    background-color: #f2f2f2 !important;
-}
-
-.client-table {
-    border: 0.5px solid #d1cfcf;
-    border-radius: 2px;
-    margin-top: 21px;
-    background-color: #f2f2f2;
-    box-shadow: rgba(17, 17, 26, 0.1) 0px 8px 24px, rgba(17, 17, 26, 0.1) 0px 16px 56px, rgba(17, 17, 26, 0.1) 0px 24px 80px;
-}
-
-tr:hover td {
-    background-color: #e8e6e6 !important;
-}
-
-.dropdown-item {
-    padding: 0.5rem 1rem;
-}
-
-.meta-info p {
-    font-size: 16px;
-    margin-bottom: 5px;
-}
-
-.dropdown-menu.show {
-    display: block !important;
-}
-</style>
+<link href="{% static 'assets/css/user-profile.css' %}" rel="stylesheet" type="text/css" />
 {% endblock %}
-
 {% block content %}
 <div class="main-content">
-    <div class="page-content">
-            <ol class="breadcrumb m-0">
-                <li class="breadcrumb-item font-size-14"><a href="http://127.0.0.1:8000/">Home</a></li>
-                <li class="breadcrumb-item font-size-14 active">Clients</li>
-             </ol>
-        <div class="client-table">
-        <table class="table">
-                <thead>
-                    <tr>
-                        <th class="table-head">Client Id</th>
-                        <th class="table-head">First Name</th>
-                        <th class="table-head">Last Name</th>
-                        <th class="table-head">Email</th>
-                        <th class="table-head">Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for user in users %}
-                    <tr>
-                        <td style="padding-left: 25px;" class="table-td">{{user.id}}</td>
-                        <td class="table-td">{{user.first_name}}</td>
-                        <td class="table-td">{{user.last_name}}</td>
-                        <td class="table-td">{{user.email}}</td>
-                        <td class="table-td">
-                            <a href="{% url 'user_detail' user.id %}" class="btn btn-primary btn-sm">
-                                <i class="fa fa-address-book"></i>
-                            </a>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-            </div>
+    <div class="container-fluid" style="margin-top: 135px;">
+        <div class="custom-tabination tab-area">
+        <ul class="nav nav-tabs" id="myTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="activity" data-bs-toggle="tab"
+                    data-bs-target="#activity-tab-pane" type="button" role="tab" aria-controls="activity-tab-pane"
+                    aria-selected="true">Recent Activity</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="upcoming-tasks" data-bs-toggle="tab"
+                    data-bs-target="#upcoming-tasks-tab-pane" type="button" role="tab"
+                    aria-controls="upcoming-tasks-tab-pane" aria-selected="false">Upcoming Tasks</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="completed-tasks" data-bs-toggle="tab"
+                    data-bs-target="#completed-tasks-tab-pane" type="button" role="tab"
+                    aria-controls="completed-tasks-tab-pane" aria-selected="false">Done</button>
+            </li>
+        </ul>
+        <div class="tab-content" id="myTabContent">
+            <div class="tab-pane fade show active" id="activity-tab-pane" role="tabpanel"
+                aria-labelledby="activity-tab" tabindex="0">
 
-      <div class="rightbar-overlay"></div>
-  </div>
+                {% if questionnaires %}
+                <div class="filter-block">
+                    <div class="filter-block__left">
+                    </div>
+                    <div class="filter-block__right">
+                        <form method="GET">
+                            <div id="div_id_search" class="form-group">
+                                <div style="display: flex; gap: 20px;">
+                                    <input type="text" name="search" placeholder="Filter by questionnaire"
+                                        class="textinput textInput form-control" id="id_search">
+                                    <button
+                                        class="btn btn-primary btn-md align-middle btn-block">Search</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                {% endif %}
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th class="table-head" style="padding-left: 25px;">Activity</th>
+                            <th class="table-head">Client</th>
+                            <th class="table-head" style="padding-left: 25px;">Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for questionnaire in questionnaires %}
+                        <tr>
+                            {% if questionnaire.is_completed %}
+                            <td style="padding-left: 25px;" class="table-td row-items">Questionnaire {{questionnaire.id}} completed</td>
+                            {% else %}
+                            <td style="padding-left: 25px;" class="table-td">Questionnaire {{questionnaire.id}} sent</td>
+                            {% endif %}
+                            <td class="table-td">{{questionnaire.user}}</td>
+                            {% if questionnaire.is_completed %}
+                            <td style="padding-left: 25px;" class="table-td">{{questionnaire.test_date}}</td>
+                            {% else %}
+                            <td style="padding-left: 25px;" class="table-td">{{questionnaire.created_at}}</td>
+                            {% endif %}
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td class="text-center" colspan="4">No Questionnaires Available</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+                <!-- Questionnaire Pagination -->
+                {% if is_paginated %}
+                <div aria-label="Page navigation" style="float:right;"
+                    class="dataTables_paginate paging_simple_numbers">
+                    <ul class="pagination">
+                        {% if page_obj.has_previous %}
+                        <li class="paginate_button page-item previous">
+                            <a href="?page={{ page_obj.previous_page_number }}"
+                                class="page-link">Previous</a>
+                        </li>
+                        {% else %}
+                        <li class="paginate_button page-item previous disabled">
+                            <a href="#" class="page-link">Previous</a>
+                        </li>
+                        {% endif %}
+                        {% for i in paginator.page_range %}
+                        {% if page_obj.number == i %}
+                        <li class="page-item"><a class="page-link active">{{ i }}</a></li>
+                        {% elif i > page_obj.number|add:'-3' and i < page_obj.number|add:'3' %} <li
+                            class="page-item"><a class="page-link" href="?page={{ i }}">{{ i }}</a></li>
+                            {% endif %}
+                            {% endfor %}
+                            {% if page_obj.has_next %}
+                            <li class="paginate_button page-item next">
+                                <a href="?page={{ page_obj.next_page_number }}" class="page-link">Next</a>
+                            </li>
+                            {% else %}
+                            <li class="paginate_button page-item next disabled">
+                                <a href="#" class="page-link">Next</a>
+                            </li>
+                            {% endif %}
+                    </ul>
+                </div>
+                {% endif %}
+            </div>
+            <!-- End Questionnaire Pagination -->
+
+            <div class="tab-pane fade" id="upcoming-tasks-tab-pane" role="tabpanel" aria-labelledby="upcoming-tasks-tab"
+                tabindex="0">
+                {% if pending_tasks %}
+                <div class="filter-block">
+                    <div class="filter-block__left">
+                    </div>
+                    <div class="filter-block__right add_task">
+                        <form method="GET">
+                            <div id="pen_task_id_search" class="form-group">
+                                <div style="display: flex; gap: 20px;">
+                                    <button style="width: 142px;" class="btn btn-primary btn-md align-middle btn-block">Add Task
+                                    </button>
+                                    <input type="text" name="search" placeholder="Filter by tasks"
+                                        class="textinput textInput form-control" id="id_search_pen_task">
+                                    <button
+                                        class="btn btn-primary btn-md align-middle btn-block">Search</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                {% endif %}
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th class="table-head" style="padding-left: 25px;">Task</th>
+                            <th class="table-head">Client</th>
+                            <th class="table-head" style="padding-left: 25px;">Due Date</th>
+                            <th class="table-head" style="padding-left: 25px;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for pe_task in pending_tasks %}
+                        <tr>
+                            <td style="padding-left: 25px;" class="table-td">{{pe_task.name}}</td>
+                            <td class="table-td">{{pe_task.client}}</td>
+                            <td style="padding-left: 25px;" class="table-td">{{pe_task.due_date}}</td>
+                            <td style="padding-left: 25px;" class="table-td">{{pe_task.created_at}}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td class="text-center" colspan="4">No data available</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+                <!-- Pending tasks Pagination -->
+                {% if is_paginated %}
+                <div aria-label="Page navigation" style="float:right;"
+                    class="dataTables_paginate paging_simple_numbers">
+                    <ul class="pagination">
+                        {% if page_obj.has_previous %}
+                        <li class="paginate_button page-item previous">
+                            <a href="?page={{ page_obj.previous_page_number }}"
+                                class="page-link">Previous</a>
+                        </li>
+                        {% else %}
+                        <li class="paginate_button page-item previous disabled">
+                            <a href="#" class="page-link">Previous</a>
+                        </li>
+                        {% endif %}
+                        {% for i in paginator.page_range %}
+                        {% if page_obj.number == i %}
+                        <li class="page-item"><a class="page-link active">{{ i }}</a></li>
+                        {% elif i > page_obj.number|add:'-3' and i < page_obj.number|add:'3' %} <li
+                            class="page-item"><a class="page-link" href="?page={{ i }}">{{ i }}</a></li>
+                            {% endif %}
+                            {% endfor %}
+                            {% if page_obj.has_next %}
+                            <li class="paginate_button page-item next">
+                                <a href="?page={{ page_obj.next_page_number }}" class="page-link">Next</a>
+                            </li>
+                            {% else %}
+                            <li class="paginate_button page-item next disabled">
+                                <a href="#" class="page-link">Next</a>
+                            </li>
+                            {% endif %}
+                    </ul>
+                </div>
+                {% endif %}
+            </div>
+            <div class="tab-pane fade" id="completed-tasks-tab-pane" role="tabpanel" aria-labelledby="completed-tasks-tab"
+                tabindex="0">
+                {% if completed_tasks %}
+                <div class="filter-block">
+                    <div class="filter-block__left">
+                    </div>
+                    <div class="filter-block__right">
+                        <form method="GET">
+                            <div id="com_task_id_search" class="form-group">
+                                <div style="display: flex; gap: 20px;">
+                                    <input type="text" name="search" placeholder="Filter by tasks"
+                                        class="textinput textInput form-control" id="id_search_pen_com">
+                                    <button
+                                        class="btn btn-primary btn-md align-middle btn-block">Search</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                {% endif %}
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th class="table-head" style="padding-left: 25px;">Task</th>
+                            <th class="table-head">Client</th>
+                            <th class="table-head" style="padding-left: 25px;">Closed On</th>
+                            <th class="table-head" style="padding-left: 25px;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for co_task in completed_tasks %}
+                        <tr>
+                            <td style="padding-left: 25px;" class="table-td">{{co_task.name}}</td>
+                            <td class="table-td">{{co_task.client}}</td>
+                            <td style="padding-left: 25px;" class="table-td">{{co_task.completed_on}}</td>
+                            <td style="padding-left: 25px;" class="table-td">{{co_task.created_at}}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td class="text-center" colspan="4">No Completed Tasks Available</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+                <!-- Pending tasks Pagination -->
+                {% if is_paginated %}
+                <div aria-label="Page navigation" style="float:right;"
+                    class="dataTables_paginate paging_simple_numbers">
+                    <ul class="pagination">
+                        {% if page_obj.has_previous %}
+                        <li class="paginate_button page-item previous">
+                            <a href="?page={{ page_obj.previous_page_number }}"
+                                class="page-link">Previous</a>
+                        </li>
+                        {% else %}
+                        <li class="paginate_button page-item previous disabled">
+                            <a href="#" class="page-link">Previous</a>
+                        </li>
+                        {% endif %}
+                        {% for i in paginator.page_range %}
+                        {% if page_obj.number == i %}
+                        <li class="page-item"><a class="page-link active">{{ i }}</a></li>
+                        {% elif i > page_obj.number|add:'-3' and i < page_obj.number|add:'3' %} <li
+                            class="page-item"><a class="page-link" href="?page={{ i }}">{{ i }}</a></li>
+                            {% endif %}
+                            {% endfor %}
+                            {% if page_obj.has_next %}
+                            <li class="paginate_button page-item next">
+                                <a href="?page={{ page_obj.next_page_number }}" class="page-link">Next</a>
+                            </li>
+                            {% else %}
+                            <li class="paginate_button page-item next disabled">
+                                <a href="#" class="page-link">Next</a>
+                            </li>
+                            {% endif %}
+                    </ul>
+                </div>
+                {% endif %}
+                <br><br>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}
 {% block script %}

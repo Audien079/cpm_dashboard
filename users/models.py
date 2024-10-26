@@ -42,3 +42,18 @@ class User(AbstractUser, BaseModel):
         return f"{self.username}"
 
     objects = MyUserManager()
+
+
+class Task(BaseModel):
+    """
+    Task Model
+    """
+    name = models.CharField(max_length=75)
+    due_date = models.DateField()
+    completed_on = models.DateField(null=True, blank=True)
+    client = models.ForeignKey(User, on_delete=models.CASCADE)
+    details = models.TextField(null=True, blank=True)
+    is_completed = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.name

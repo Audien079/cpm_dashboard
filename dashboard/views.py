@@ -1,16 +1,18 @@
+from datetime import datetime
 from django.urls import reverse_lazy
 from users.models import User
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import ListView, TemplateView
 from dashboard.models import Activity, UserQuestionnaire, Question
+from users.models import Task
 
 
-class ClientView(LoginRequiredMixin, ListView):
+class HomeView(LoginRequiredMixin, ListView):
     """
-    Client view
+    Home view
     """
     login_url = reverse_lazy("login")
-    template_name = "dashboard/client.html"
+    template_name = "dashboard/home.html"
     model = User
     queryset = User.objects.all().order_by("id").filter(is_admin=False)
     context_object_name = "users"
@@ -79,19 +81,64 @@ class DetailedQuestionnaire(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         questionnaire = UserQuestionnaire.objects.get(id=self.kwargs["id"])
-        sections = Question.objects.filter(parent_question__isnull=True).order_by('id')
-        context["questionnaire"] = questionnaire
-        context["sections"] = sections
+
+        # Fetch all related answers and prefetch related questions and parent questions in one go
+        answers = list(
+            questionnaire.questionnaire_answers.select_related('question__parent_question')
+            .values('id', 'user_questionnaire_id', 'question_id', 'question__parent_question_id',
+                    'question__question_text', 'question__order', 'yes_no_answer', 'text_answer')
+            .order_by('id')
+        )
+        current_date = datetime.now()
+        formatted_date = current_date.strftime("%m/%d/%Y")
+
+        # Section headers based on question order
+        section_headers = {
+            '1': "+ Section 1  Contact Information",
+            '2': "+ Section 2  Tax Return",
+            '3': "+ Section 3  Change in Business",
+            '4': "+ Section 4  Change in personal financial life"
+        }
+
+        output_list = []
+
+        # First pass: build the output list for the main questions (order 1 to 4)
+        for answer in answers:
+            answer["yes_no_answer"] = answer["yes_no_answer"].capitalize()
+            if answer['question__order'] in section_headers:
+                output_dict = {
+                    "id": answer["id"],
+                    "user_questionnaire_id": answer["user_questionnaire_id"],
+                    "question_id": answer["question_id"],
+                    "yes_no_answer": answer["yes_no_answer"].capitalize(),
+                    "text_answer": answer["text_answer"],
+                    "question": answer["question__question_text"].replace("[today]", formatted_date),
+                    "order": answer["question__order"],
+                    "header": section_headers[answer['question__order']],
+                    "childrens": []
+                }
+                output_list.append(output_dict)
+
+        # Second pass: assign children to their parent questions
+        for output in output_list:
+            for answer in answers:
+                if (answer["question__parent_question_id"] == output["question_id"] and
+                        output["yes_no_answer"].lower() != "no"):
+                    output["childrens"].append(answer)
+
+        context["data"] = output_list
         return context
 
 
-class SettingPage(TemplateView):
+class ClientsPage(TemplateView):
     """
-    Settings page
+    Clients page
     """
-    template_name = "dashboard/settings.html"
+    template_name = "dashboard/client.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["questionnaires"] = UserQuestionnaire.objects.all()
+        context["completed_tasks"] = Task.objects.filter(is_completed=True)
+        context["pending_tasks"] = Task.objects.filter(is_completed=False)
         return context

@@ -25,6 +25,10 @@
     box-shadow: rgba(17, 17, 26, 0.1) 0px 2px 2px, rgba(17, 17, 26, 0.1) 0px 2px 2px, rgba(17, 17, 26, 0.1) 0px 2px 2px;
 }
 
+.column-header {
+    text-align: center;
+}
+
 .podcast-title {
   background-color: #ffffff;
   border-radius: 20px;
@@ -530,7 +534,7 @@
   background-color: #fff;
 }
 .custom-tabination .nav-tabs .nav-item .nav-link.active{
-      background-color: #132849;
+  background-color: #576f9a;
   color: #fff;
 }
 .custom-ep-block{
@@ -619,6 +623,11 @@
 }
 .filter-block .filter-block__right{
       width: 450px;
+      max-width: 100%;
+}
+
+.filter-block .filter-block__right.add_task{
+      width: 500px;
       max-width: 100%;
 }
 .filter-block .filter-block__right .form-control{

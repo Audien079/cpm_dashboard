@@ -109,6 +109,33 @@
             border-color: #918e8e;
         }
 
+        .additional-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .additional-buttons button {
+            padding: 10px 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: white;
+            cursor: pointer;
+            outline: none;
+        }
+
+        .additional-buttons button.selected {
+            background-color: #565656;
+            color: white;
+            border-color: #565656;
+        }
+        .additional-buttons button:hover {
+            background-color: #918e8e;
+            color: white;
+            border-color: #918e8e;
+        }
+
         .additional-info {
             display: none;
             margin-top: 10px;
@@ -225,6 +252,45 @@
             border: 1px solid #ccc;
             border-radius: 4px;
         }
+
+        .states-dropdown select {
+          background-color: #565656;
+          color: white;
+          border-radius : 7px;
+          padding: 10px;
+          width: 185px;
+          border: none;
+          font-size: 15px;
+          box-shadow: 0 5px 25px rgba(0, 0, 0, 0.2);
+          -webkit-appearance: button;
+          appearance: button;
+          outline: none;
+        }
+
+        .states-dropdown::before {
+          content: "\f13a";
+          font-family: FontAwesome;
+          position: absolute;
+          top: 0;
+          right: 0;
+          width: 20%;
+          height: 100%;
+          text-align: center;
+          font-size: 28px;
+          line-height: 45px;
+          color: rgba(255, 255, 255, 0.5);
+          background-color: rgba(255, 255, 255, 0.1);
+          pointer-events: none;
+        }
+
+        .states-dropdown:hover::before {
+          color: rgba(255, 255, 255, 0.6);
+          background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .states-dropdown select option {
+          padding: 30px;
+        }
     </style>
 {% endblock %}
 {% block content %}
@@ -255,6 +321,15 @@
             <div class="input-container additional-info info{{question.id}}">
                 <label for="updated-info{{question.id}}">{{question.follow_up}}:</label>
                 <textarea id="updated-info{{question.id}}" placeholder=""></textarea>
+                <div class="additional-buttons" style="display: none;">
+                    <button class="ans_button" data-required="{{question.info_required}}" data-order="{{question.id}}" type="button" data-value="Married">Married</button>
+                    <button class="ans_button" data-required="{{question.info_required}}" data-order="{{question.id}}" type="button" data-value="Divorced">Divorced</button>
+                </div>
+                <div class="states-dropdown">
+                    <select id="states">
+                        <option value="">--Select a state--</option>
+                    </select>
+                </div>
             </div>
         </div>
         {% endfor %}
@@ -293,7 +368,7 @@
 
         <!-- Navigation Buttons -->
         <div class="navigation-buttons page-buttons" style="display:none;">
-            <button type="button" id="prevBtn" onclick="prevQuestion()">&larr; Previous</button>
+            <button type="button" id="prevBtn" onclick="prevQuestion('false')">&larr; Previous</button>
             <button type="button" id="nextBtn" onclick="nextQuestion(this)">Next &rarr;</button>
         </div>
 
@@ -309,7 +384,7 @@
         </div>
         <h6>Press "Return" to go back and change one of your answers, or "Next" to go on finish page</h6>
         <div class="avigation-buttons page-buttons">
-            <button type="button" id="prevBtnn" onclick="prevQuestion()">Return</button>
+            <button type="button" id="prevBtnn" class="prev" onclick="prevQuestion('true')">Return</button>
             <button type="button" id="submitBtn" >Next</button>
         </div>
     </div>
@@ -329,6 +404,19 @@
     let currentQuestion = $('.question-box').first().attr("data-question");
     let section4Process = 'false'
     let selectedAnswers = {};
+    $('.states-dropdown').hide();
+    const states = [
+        "Alabama", "Alaska", "Arizona", "Arkansas", "California", "Colorado",
+        "Connecticut", "Delaware", "Florida", "Georgia", "Hawaii", "Idaho",
+        "Illinois", "Indiana", "Iowa", "Kansas", "Kentucky", "Louisiana",
+        "Maine", "Maryland", "Massachusetts", "Michigan", "Minnesota",
+        "Mississippi", "Missouri", "Montana", "Nebraska", "Nevada",
+        "New Hampshire", "New Jersey", "New Mexico", "New York",
+        "North Carolina", "North Dakota", "Ohio", "Oklahoma", "Oregon",
+        "Pennsylvania", "Rhode Island", "South Carolina", "South Dakota",
+        "Tennessee", "Texas", "Utah", "Vermont", "Virginia", "Washington",
+        "West Virginia", "Wisconsin", "Wyoming"
+    ];
 
     function loadReviewScreen() {
     // Hide the welcome screen and show the review screen
@@ -424,6 +512,17 @@
         $('#questionnaireForm').show();
     });
 
+    function loadStates() {
+        const dropdown = document.getElementById("states");
+
+        states.forEach(state => {
+            const option = document.createElement("option");
+            option.value = state;
+            option.textContent = state;
+            dropdown.appendChild(option);
+        });
+    }
+
     // Navigate to next question
     function nextQuestion() {
         let currentQuestionId = questionArray[currentIndex];
@@ -437,9 +536,31 @@
             return;
         }
 
+        if (currentIndex == 9) {
+            $('.additional-buttons').show();
+            $(`#updated-info${parseInt(questionArray[currentIndex]) + 1}`).hide();
+        } else {
+            $('.additional-buttons').hide();
+        }
+
+        if (currentIndex == 13) {
+            $('.states-dropdown').show();
+            $(`#updated-info${parseInt(questionArray[currentIndex]) + 1}`).hide();
+            loadStates();
+        } else {
+            $('.states-dropdown').hide();
+        }
+
         hideError();
         const answer = selectedAnswer.attr('data-value');
-        const additionalInfo = $(`.info${currentQuestionId} textarea`).val();
+
+        if (currentIndex == 10) {
+            var additionalInfo = $('.additional-buttons .ans_button.selected').data('value');
+        } else if (currentIndex == 14) {
+            var additionalInfo = $('#states :selected').val();
+        } else {
+            var additionalInfo = $(`.info${currentQuestionId} textarea`).val();
+        }
 
         $.ajax({
             url: "{% url 'save_questions' %}",
@@ -504,7 +625,7 @@
     }
 
     // jQuery function to go to the previous question
-    function prevQuestion() {
+    function prevQuestion(prev_btn) {
         // $('#finishScreen').hide();
         $('#reviewScreen').hide();
         $('.navigation-buttons').show();
@@ -533,10 +654,25 @@
                 $('#reviewScreen').hide();
             }
             let prevQuestion;
-            if (currentIndex == 20 && answer_4 === 'Yes') {
+            if (prev_btn == 'true' && answer_4 === 'Yes') {
                 prevQuestion = questionArray[currentIndex];
             } else {
                 prevQuestion = questionArray[--currentIndex];
+            }
+
+            if (currentIndex == 10) {
+                $('.additional-buttons').show();
+                $(`#updated-info${parseInt(questionArray[currentIndex]) + 1}`).hide();
+            } else {
+                $('.additional-buttons').hide();
+            }
+
+            if (currentIndex == 14) {
+                $('.states-dropdown').show();
+                $(`#updated-info${parseInt(questionArray[currentIndex]) + 1}`).hide();
+                loadStates();
+            } else {
+                $('.states-dropdown').hide();
             }
 
             $(`[data-question="${currentQuestion}"]`).removeClass('active');
@@ -646,6 +782,14 @@
         } else {
             $(".form-container").hide();
         }
+    });
+
+    $('.additional-buttons button').click(function() {
+        // Remove 'selected' class from all buttons of the current question
+        $(this).siblings().removeClass('selected');
+
+        // Add 'selected' class to the clicked button
+        $(this).addClass('selected');
     });
 
     $('#finishBtn').click(function(){

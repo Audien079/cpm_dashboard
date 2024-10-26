@@ -96,6 +96,7 @@ class Answer(BaseModel):
     question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name="questionnaire_questions")
     yes_no_answer = models.CharField(max_length=10, choices=ANSWER, null=True, blank=True)
     text_answer = models.TextField(null=True, blank=True)
+    additional_data = models.JSONField(null=True, blank=True)
 
     def __str__(self):
         return f"Answer to {self.question} by {self.user_questionnaire.user.username}"
