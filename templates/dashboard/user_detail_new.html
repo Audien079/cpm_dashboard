@@ -196,16 +196,15 @@ ul.contacts-block li .edit-btn svg {
                             <p class="history-date">{{activity.questionnaire.test_date|date:"m/d/Y h:i A"}}</p>
                             <p>Questionnaire {{ forloop.revcounter }} completed</p>
                         </div>
-                        {% endif %}
                         <div class="history-item">
                             <p class="history-date">{{activity.questionnaire.test_date|date:"m/d/Y h:i A"}}</p>
                             <button class="collapsible">Changes in Questionnaire {{ forloop.revcounter }}</button>
                             <div class="collapsible-content">
                                 {% for yes_tmp in activity.questionnaire.yes_answers|slice:"0:3" %}
                                 {% if yes_tmp.question.parent_question.order %}
-                                    <p class="question">Question {{yes_tmp.question.parent_question.order}}.{{yes_tmp.question.order}} {{yes_tmp.question}}</p>
+                                    <p data-value="{{activity.questionnaire.test_date|date:'m/d/Y'}}" class="question">Question {{yes_tmp.question.parent_question.order}}.{{yes_tmp.question.order}} {{yes_tmp.question}}</p>
                                 {% else %}
-                                    <p class="question">Question {{yes_tmp.question.order}} {{yes_tmp.question}}</p>
+                                    <p data-value="{{activity.questionnaire.test_date|date:'m/d/Y'}}" class="question">Question {{yes_tmp.question.order}} {{yes_tmp.question}}</p>
                                 {% endif %}
                                 <ul class="list-item">
                                     <li>{{yes_tmp.yes_no_answer|lower|capfirst}}</li>
@@ -213,10 +212,15 @@ ul.contacts-block li .edit-btn svg {
                                     <li>{{yes_tmp.text_answer}}</li>
                                     {% endif %}
                                 </ul>
+                                {% empty %}
+                                <div class="col-12">
+                                    <p class="sub-heading">No questions were marked yes!!!</p>
+                                </div>
                                 {% endfor %}
                                 <a href="{% url 'detail_questionnaire' activity.questionnaire.id %}" class="view-full">See full questionnaire</a>
                             </div>
                         </div>
+                        {% endif %}
                         <div class="history-item">
                             <p class="history-date">{{activity.questionnaire.created_at|date:"m/d/Y h:i A"}}</p>
                             <p>Questionnaire {{ forloop.revcounter }} sent</p>
@@ -273,6 +277,14 @@ ul.contacts-block li .edit-btn svg {
 {% block script %}
 <script>
 $(document).ready(function() {
+
+    $('.question').each(function() {
+        if ($(this).text().includes('[today]')) {
+            const dataValue = $(this).data('value');
+            const updatedText = $(this).text().replace('[today]', dataValue);
+            $(this).text(updatedText);
+        }
+    });
 
     $('.edit-dob').on('click', function() {
         var currentDate = $('.date_of_birth').text();

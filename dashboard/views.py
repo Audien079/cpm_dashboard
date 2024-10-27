@@ -40,7 +40,7 @@ class UserDetailView(LoginRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         user = User.objects.get(id=self.kwargs["id"])
-        activities = Activity.objects.filter(user=user).order_by("-created_at")
+        activities = Activity.objects.filter(user=user).order_by("-questionnaire__created_at")
         all_questionnaires = user.user_questionnaires.order_by("-created_at").all()
         latest_questionnaire = all_questionnaires.order_by("-created_at").filter(is_completed=True).first()
 

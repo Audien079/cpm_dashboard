@@ -195,11 +195,6 @@ def modify_user_phone(request):
 
     updated_phone = request.POST.get("updated_phone").replace('-', '')
 
-    # is_valid = is_valid_email(updated_email)
-    #
-    # if not is_valid:
-    #     return JsonResponse({"message": "failure", "data": "Phone number is not valid"})
-
     user_id = request.POST.get("user_id")
     user = User.objects.get(id=user_id)
 
@@ -249,17 +244,35 @@ class CompleteQuestionnaire(View):
     def post(self, request):
         questionnaire_id = request.GET.get("qnr")
         questionnaire = UserQuestionnaire.objects.get(id=questionnaire_id)
+
+        # Mark questionnaire as completed and save all fields at once
         questionnaire.is_completed = True
         questionnaire.test_date = timezone.now()
-        questionnaire.save()
-        user = questionnaire.user
-        user.phone = request.POST.get("phone")
-        user.email = request.POST.get("email")
-        user.address = request.POST.get("address")
-        user.city = request.POST.get("city")
-        user.state = request.POST.get("state")
-        user.postal_code = request.POST.get("postal_code")
-        user.save()
+        questionnaire.save(update_fields=["is_completed", "test_date"])
+
+        # Update user fields from POST data
+        user_data = {
+            "phone": request.POST.get("phone"),
+            "email": request.POST.get("email"),
+            "address": request.POST.get("address"),
+            "city": request.POST.get("city"),
+            "state": request.POST.get("state"),
+            "postal_code": request.POST.get("postal_code"),
+        }
+        User.objects.filter(id=questionnaire.user_id).update(**user_data)
+
+        # Delete answers to questions with a NO answer where question order is 3 or 4
+        questionnaire_answers = questionnaire.questionnaire_answers.filter(
+            question__order__in=["3", "4"],
+            yes_no_answer="NO"
+        ).values_list('question_id', flat=True)
+
+        # Retrieve all sub-answers linked to those questions and delete them
+        Answer.objects.filter(
+            user_questionnaire=questionnaire,
+            question__parent_question__in=questionnaire_answers
+        ).delete()
+
         return redirect(reverse('success_questionnaire'))
 
 
