@@ -357,7 +357,12 @@
 
             <div class="form-group">
                 <label for="state">State</label>
-                <input type="text" id="state" name="state" value="{{user.state|default:''}}">
+                <select id="state" name="state" data-state="{{user.state}}">
+                    <option value="">--Select a state--</option>
+                    {% for state in states %}
+                        <option value="{{ state }}" {% if state == user.state %}selected{% endif %}>{{ state }}</option>
+                    {% endfor %}
+                </select>
             </div>
 
             <div class="form-group">
@@ -382,10 +387,10 @@
         <div id="reviewSection" class="sections" style="margin-top: 20px;">
 
         </div>
-        <h6>Press "Return" to go back and change one of your answers, or "Next" to go on finish page</h6>
+        <h6>Press "Return" to go back and change one of your answers, or "Finish" to submit your questionnaire</h6>
         <div class="avigation-buttons page-buttons">
             <button type="button" id="prevBtnn" class="prev" onclick="prevQuestion('true')">Return</button>
-            <button type="button" id="submitBtn" >Next</button>
+            <button type="button" id="submitBtn" >Finish</button>
         </div>
     </div>
     <div id="finishScreen" class="finish-box page-buttons" style="display:none;">
@@ -513,15 +518,13 @@
     });
 
     function loadStates() {
-        const dropdown = document.getElementById("states");
+    const dropdown = $("#states");
 
-        states.forEach(state => {
-            const option = document.createElement("option");
-            option.value = state;
-            option.textContent = state;
-            dropdown.appendChild(option);
-        });
-    }
+    states.forEach(state => {
+        const option = $("<option></option>").val(state).text(state);
+        dropdown.append(option.clone());
+    });
+}
 
     // Navigate to next question
     function nextQuestion() {
@@ -626,6 +629,7 @@
 
     // jQuery function to go to the previous question
     function prevQuestion(prev_btn) {
+        debugger;
         // $('#finishScreen').hide();
         $('#reviewScreen').hide();
         $('.navigation-buttons').show();
@@ -691,6 +695,7 @@
 
         if (currentIndex == 0 && answer_1 === 'Yes'){
             $(".form-container").show();
+            loadStates();
         } else {
             $(".form-container").hide();
         }
@@ -777,11 +782,12 @@
         }
 
         if ((firstQuestionId == questionId) && selectedValue == 'yes'){
-            $(".form-container").show();
-            $(`#updated-info${questionId}`).hide();
-        } else {
-            $(".form-container").hide();
-        }
+                $(".form-container").show();
+                $(`#updated-info${questionId}`).hide();
+                loadStates();
+            } else {
+                $(".form-container").hide();
+            }
     });
 
     $('.additional-buttons button').click(function() {
@@ -797,8 +803,9 @@
     })
 
     $('#submitBtn').click(function(){
-        $('#reviewScreen').hide();
-        $('#finishScreen').show();
+        // $('#reviewScreen').hide();
+        // $('#finishScreen').show();
+        $('#questionnaireForm').submit();
     })
 
     $(document).on('click', '.collapsible', function() {
@@ -807,7 +814,6 @@
 
         // Toggle the sub-content visibility
         var content = $(this).next('.sub-content');
-        // debugger;
 
         if ($(content).css('display') === "block") {
             $(content).css('display', 'none');
@@ -818,6 +824,12 @@
         }
 
         $(this).html(updated_sign)
+    });
+
+    $("#state").change(function() {
+        const selectedValue = $(this).val();
+        console.log("Selected value:", selectedValue);
+        $(this).find(`option[value="${selectedValue}"]`).prop("selected", true);
     });
 </script>
 {% endblock %}
