@@ -328,6 +328,9 @@
                 <div class="states-dropdown">
                     <select id="states">
                         <option value="">--Select a state--</option>
+                        {% for state in states %}
+                            <option value="{{ state }}">{{ state }}</option>
+                        {% endfor %}
                     </select>
                 </div>
             </div>
@@ -517,15 +520,6 @@
         $('#questionnaireForm').show();
     });
 
-    function loadStates() {
-    const dropdown = $("#states");
-
-    states.forEach(state => {
-        const option = $("<option></option>").val(state).text(state);
-        dropdown.append(option.clone());
-    });
-}
-
     // Navigate to next question
     function nextQuestion() {
         let currentQuestionId = questionArray[currentIndex];
@@ -549,7 +543,6 @@
         if (currentIndex == 13) {
             $('.states-dropdown').show();
             $(`#updated-info${parseInt(questionArray[currentIndex]) + 1}`).hide();
-            loadStates();
         } else {
             $('.states-dropdown').hide();
         }
@@ -674,7 +667,6 @@
             if (currentIndex == 14) {
                 $('.states-dropdown').show();
                 $(`#updated-info${parseInt(questionArray[currentIndex]) + 1}`).hide();
-                loadStates();
             } else {
                 $('.states-dropdown').hide();
             }
@@ -695,7 +687,6 @@
 
         if (currentIndex == 0 && answer_1 === 'Yes'){
             $(".form-container").show();
-            loadStates();
         } else {
             $(".form-container").hide();
         }
@@ -784,7 +775,6 @@
         if ((firstQuestionId == questionId) && selectedValue == 'yes'){
                 $(".form-container").show();
                 $(`#updated-info${questionId}`).hide();
-                loadStates();
             } else {
                 $(".form-container").hide();
             }
@@ -828,7 +818,6 @@
 
     $("#state").change(function() {
         const selectedValue = $(this).val();
-        console.log("Selected value:", selectedValue);
         $(this).find(`option[value="${selectedValue}"]`).prop("selected", true);
     });
 </script>
