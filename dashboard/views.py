@@ -3,16 +3,19 @@ from django.urls import reverse_lazy
 from users.models import User
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import ListView, TemplateView
+from django.shortcuts import redirect
+from django.urls import reverse
 from dashboard.models import Activity, UserQuestionnaire, Question
+from django.http import JsonResponse
 from users.models import Task
 
 
-class HomeView(LoginRequiredMixin, ListView):
+class ClientsPage(LoginRequiredMixin, ListView):
     """
     Home view
     """
     login_url = reverse_lazy("login")
-    template_name = "dashboard/home.html"
+    template_name = "dashboard/client.html"
     model = User
     queryset = User.objects.all().order_by("id").filter(is_admin=False)
     context_object_name = "users"
@@ -27,6 +30,77 @@ class HomeView(LoginRequiredMixin, ListView):
     #     Activity.objects.create(user=user_obj, questionnaire=questionnaire)
     #     questionnaire_link = os.environ.get("SITE_URL") + f'/questionnaire/{questionnaire.id}/'
     #     email_questionnaire(user_obj, questionnaire_link)
+
+
+class HomeView(TemplateView):
+    """
+    Clients page
+    """
+    template_name = "dashboard/home.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["questionnaires"] = UserQuestionnaire.objects.all()
+        context["completed_tasks"] = Task.objects.filter(is_completed=True)
+        context["pending_tasks"] = Task.objects.filter(is_completed=False)
+        context["users"] = User.objects.filter(is_admin=False)
+        return context
+
+
+def create_task(request):
+    """
+    Create task
+    """
+    if request.method == 'POST':
+        client = request.POST.get('client')
+        task_name = request.POST.get('task_name')
+        due_date = request.POST.get('due_date')
+        details = request.POST.get('details')
+        user = User.objects.get(id=client)
+
+        Task.objects.create(
+            client=user,
+            name=task_name,
+            due_date=datetime.strptime(due_date, "%Y-%m-%d").date(),
+            details=details
+        )
+        return redirect(reverse('home') + '?done=true')
+
+
+def complete_task(request):
+    """
+    Mark task as completed
+    """
+    task_id = request.POST.get("task_id")
+    task = Task.objects.get(id=task_id)
+    task.is_completed = True
+    task.completed_on = datetime.now().date()
+    task.save()
+    return JsonResponse({"message": "success"})
+
+
+def uncomplete_task(request):
+    """
+    Mark task as not completed
+    """
+    task_id = request.POST.get("task_id")
+    task = Task.objects.get(id=task_id)
+    task.is_completed = False
+    task.save()
+    return JsonResponse({"message": "success"})
+
+
+def edit_task(request):
+    """
+    Edit task completed
+    """
+    task_id = request.POST.get("task_id")
+    date_str = request.POST.get("updated_due_date")
+    task = Task.objects.get(id=task_id)
+    due_date = datetime.strptime(date_str, "%Y-%m-%d").date()
+    task.due_date = due_date
+    task.save()
+    return JsonResponse({"message": "success", "due_date": due_date.strftime("%m/%d/%Y")})
 
 
 class UserDetailView(LoginRequiredMixin, ListView):
@@ -127,18 +201,4 @@ class DetailedQuestionnaire(TemplateView):
                     output["childrens"].append(answer)
 
         context["data"] = output_list
-        return context
-
-
-class ClientsPage(TemplateView):
-    """
-    Clients page
-    """
-    template_name = "dashboard/client.html"
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["questionnaires"] = UserQuestionnaire.objects.all()
-        context["completed_tasks"] = Task.objects.filter(is_completed=True)
-        context["pending_tasks"] = Task.objects.filter(is_completed=False)
         return context

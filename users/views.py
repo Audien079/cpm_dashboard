@@ -333,3 +333,146 @@ def get_review_questions(request):
                 output["childrens"].append(answer)
 
     return JsonResponse({"message": "success", "data": output_list})
+
+
+class NewQuestionnaire(TemplateView):
+    """
+    New questionnaire
+    """
+    template_name = "user/new_questions.html"
+
+    def get_context_data(self, **kwargs):
+        context_data = super().get_context_data(**kwargs)
+        qnr_id = self.kwargs.get("pk")
+        context_data["questions"] = Question.objects.all()
+        context_data["questionnaire"] = qnr_id
+        context_data["sections"] = Question.objects.filter(parent_question__isnull=True).order_by('id')
+        context_data["user"] = UserQuestionnaire.objects.get(id=qnr_id).user
+        context_data["states"] = [
+            "Alabama", "Alaska", "Arizona", "Arkansas", "California", "Colorado",
+            "Connecticut", "Delaware", "Florida", "Georgia", "Hawaii", "Idaho",
+            "Illinois", "Indiana", "Iowa", "Kansas", "Kentucky", "Louisiana",
+            "Maine", "Maryland", "Massachusetts", "Michigan", "Minnesota",
+            "Mississippi", "Missouri", "Montana", "Nebraska", "Nevada",
+            "New Hampshire", "New Jersey", "New Mexico", "New York",
+            "North Carolina", "North Dakota", "Ohio", "Oklahoma", "Oregon",
+            "Pennsylvania", "Rhode Island", "South Carolina", "South Dakota",
+            "Tennessee", "Texas", "Utah", "Vermont", "Virginia", "Washington",
+            "West Virginia", "Wisconsin", "Wyoming"
+        ]
+        return context_data
+
+
+def load_questions(request):
+    """
+    loadQuestions
+    """
+    start = request.GET.get("start")
+    prev = request.GET.get("prev")
+    qnr_id = request.GET.get("questionnaire")
+    current_id = int(request.GET.get("currentId"))
+    curr_yes_no = request.GET.get("yes_no")
+    curr_text_ans = request.GET.get("text_ans")
+    last = request.GET.get("last")
+    prev_yes_no = ""
+    prev_text_ans = ""
+    questionnaire = UserQuestionnaire.objects.get(id=qnr_id)
+    load_review = False
+    user_info = False
+    has_prev_text = False
+    show_married_btn = False
+    show_states = False
+
+    if current_id != 0 and prev == "false":
+        current_question = Question.objects.get(load_order=current_id)
+        obj, _ = Answer.objects.get_or_create(
+            user_questionnaire=questionnaire,
+            question=current_question
+        )
+        obj.yes_no_answer = curr_yes_no.upper()
+        info_at = current_question.info_at.first()
+
+        if info_at:
+            if info_at.info_at.lower() == curr_yes_no.lower():
+                obj.text_answer = curr_text_ans
+            else:
+                obj.text_answer = None
+        obj.save()
+
+    if start == "true":
+        user_info = True
+        question = Question.objects.get(load_order=1)
+    elif prev == "true" and last == "false":
+        question = Question.objects.get(load_order=current_id - 1)
+        prev_answer = Answer.objects.get(user_questionnaire=questionnaire, question=question)
+        if current_id == 10:
+            last_question = Question.objects.get(load_order=3)
+            prev_answer = Answer.objects.get(user_questionnaire=questionnaire,
+                                             question=last_question)
+            if prev_answer.yes_no_answer.lower() == "no":
+                question = last_question
+
+        prev_yes_no = prev_answer.yes_no_answer.lower()
+        prev_text_ans = prev_answer.text_answer
+        prev_info = question.info_at.first()
+        if prev_info:
+            if prev_info.info_at.lower() == prev_yes_no:
+                has_prev_text = True
+    elif last == "true":
+        last_question = Question.objects.get(load_order=10)
+        prev_answer = Answer.objects.get(user_questionnaire=questionnaire,
+                                         question=last_question)
+        if prev_answer.yes_no_answer.lower() == "no":
+            question = last_question
+        else:
+            question = Question.objects.get(load_order=21)
+            prev_answer = Answer.objects.get(user_questionnaire=questionnaire,
+                                             question=question)
+            prev_yes_no = prev_answer.yes_no_answer.lower()
+            prev_text_ans = prev_answer.text_answer
+            prev_info = prev_answer.info_at.first()
+            if prev_info:
+                if prev_info.info_at.lower() == prev_yes_no:
+                    has_prev_text = True
+    else:
+        if current_id == 21 or (current_id == 10 and curr_yes_no.lower() == "no"):
+            load_review = True
+        elif current_id == 3 and curr_yes_no.lower() == "no":
+            question = Question.objects.get(load_order=10)
+        else:
+            question = Question.objects.get(load_order=current_id + 1)
+
+    if not load_review:
+        if question.info_at.first():
+            info_at = question.info_at.first().info_at
+        else:
+            info_at = ""
+
+        current_date = datetime.now()
+        formatted_date = current_date.strftime("%m/%d/%Y")
+        question_text = question.question_text.replace("[today]", formatted_date)
+
+        if question.load_order == 11 and info_at == "yes":
+            show_married_btn = True
+
+        if question.load_order == 15 and info_at == "yes":
+            show_states = True
+
+        output_data = {
+            "question": f"{question.custom_order}. {question_text}",
+            "info_at": info_at,
+            "follow_up": question.follow_up,
+            "user_info": user_info,
+            "load_order": question.load_order,
+            "yes_no": prev_yes_no,
+            "text_ans": prev_text_ans,
+            "load_review": load_review,
+            "options": question.options,
+            "has_prev_text": has_prev_text,
+            "show_married_btn": show_married_btn,
+            "show_states": show_states
+        }
+
+    else:
+        output_data = {"load_review": load_review}
+    return JsonResponse({"message": "success", "data": output_data})

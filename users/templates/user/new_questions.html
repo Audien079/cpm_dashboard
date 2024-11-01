@@ -1,0 +1,679 @@
+{% extends "layouts/questionnaire_base.html" %}
+{% block header %}
+<title>CPA Questionare</title>
+{% endblock %}
+{% load static %}
+
+{% block style %}
+    <style>
+        .container {
+            margin-top: 80px !important;
+            max-width: 720px;
+            border-radius: 25px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .welcome-box {
+            display: block;
+            text-align: center;
+            padding: 50px;
+        }
+
+        .question-box.active {
+            display: block;
+        }
+
+        .answer-box {
+            margin-top: 10px;
+        }
+
+        .additional-info {
+            display: none;
+            margin-top: 10px;
+        }
+
+        .custom-progress-bar-container {
+            width: 100%;
+            background-color: #e0e0e0;
+            border-radius: 5px;
+            margin: 20px 0;
+            height: 20px;
+            position: relative;
+        }
+
+        .custom-progress-bar {
+            width: 0;
+            height: 100%;
+            background-color: #17274f;
+            border-radius: 5px;
+            transition: width 0.5s ease;
+        }
+
+        .navigation-buttons {
+            margin-top: 20px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .answer-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .answer-buttons button {
+            padding: 10px 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: white;
+            cursor: pointer;
+            outline: none;
+        }
+
+        .page-buttons button {
+            padding: 10px 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: white;
+            cursor: pointer;
+            outline: none;
+        }
+
+        .page-buttons button:hover {
+            border: 1px solid #ccc;
+            background-color: #e1dede;
+            cursor: pointer;
+            outline: none;
+        }
+
+        .answer-buttons button.selected {
+            background-color: #565656;
+            color: white;
+            border-color: #565656;
+        }
+        .answer-buttons button:hover {
+            background-color: #918e8e;
+            color: white;
+            border-color: #918e8e;
+        }
+
+        .additional-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .additional-buttons button {
+            padding: 10px 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: white;
+            cursor: pointer;
+            outline: none;
+        }
+
+        .additional-buttons button.selected {
+            background-color: #565656;
+            color: white;
+            border-color: #565656;
+        }
+        .additional-buttons button:hover {
+            background-color: #918e8e;
+            color: white;
+            border-color: #918e8e;
+        }
+
+        .additional-info {
+            display: none;
+            margin-top: 10px;
+        }
+
+        .question-box {
+            text-align: center;
+        }
+
+        .input-container {
+            margin: 20px;
+            font-family: Arial, sans-serif;
+        }
+
+        .input-container label {
+            font-size: 16px;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .input-container textarea {
+            width: 100%;
+            max-width: 400px;
+            height: 80px;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            resize: none;
+        }
+
+        .sections {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+        }
+
+        /* Collapsible section button */
+        .collapsible {
+            background-color: #d0d2d6;
+            color: black;
+            cursor: pointer;
+            padding: 15px;
+            border: none;
+            text-align: left;
+            font-size: 16px;
+            width: 100%;
+            border-radius: 5px;
+            outline: none;
+            margin-bottom: 10px;
+        }
+
+        .collapsible.active {
+            background-color: #b7b9bb;
+        }
+
+        /* Sub-content style */
+        .sub-content {
+            display: none;
+            padding: 20px;
+            background-color: #f8f9fa;
+            margin-top: 10px;
+            border-left: 5px solid #b7b9bb;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .sub-content.show {
+            background-color: #ffffff;
+            padding: 25px;
+            border-radius: 8px;
+            border-left: 5px solid #0056b3;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 15px;
+        }
+
+        .sub-content ul {
+            margin-left: 35px;
+            padding-left: 0;
+        }
+
+        .sub-content ul li {
+            padding: 2px 0;
+            color: #333;
+            text-align: left;
+        }
+
+        .sub-section {
+            margin-bottom: 0px;
+            text-align: left;
+        }
+        .form-container {
+            width: 400px;
+            margin: 0 auto;
+            margin-top: 10px;
+        }
+        .form-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .form-group label {
+            width: 130px;
+            margin-right: 10px;
+            font-size: 14px;
+        }
+        .form-group input[type="text"],
+        .form-group input[type="email"],
+        .form-group select {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .states-dropdown select {
+          background-color: #565656;
+          color: white;
+          border-radius : 7px;
+          padding: 10px;
+          width: 185px;
+          border: none;
+          font-size: 15px;
+          box-shadow: 0 5px 25px rgba(0, 0, 0, 0.2);
+          -webkit-appearance: button;
+          appearance: button;
+          outline: none;
+        }
+
+        .states-dropdown::before {
+          content: "\f13a";
+          font-family: FontAwesome;
+          position: absolute;
+          top: 0;
+          right: 0;
+          width: 20%;
+          height: 100%;
+          text-align: center;
+          font-size: 28px;
+          line-height: 45px;
+          color: rgba(255, 255, 255, 0.5);
+          background-color: rgba(255, 255, 255, 0.1);
+          pointer-events: none;
+        }
+
+        .states-dropdown:hover::before {
+          color: rgba(255, 255, 255, 0.6);
+          background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .states-dropdown select option {
+          padding: 30px;
+        }
+    </style>
+{% endblock %}
+{% block content %}
+<div class="container">
+    <!-- Welcome Screen -->
+    <div id="welcomeScreen" class="welcome-box page-buttons">
+        <h1>Questionnaire</h1>
+        <p>Thank you for taking the time to answer these questions. The following questions will help us determine if there have been any relevant changes in your financial situation, so we can provide you with custom tailored support.</p>
+        <button id="startBtn">Get Started  &rarr;</button>
+    </div>
+
+    <form id="questionnaireForm" data-questionnaire="{{questionnaire}}" method="POST" action="{% url 'complete_questionnaire' %}?qnr={{questionnaire}}" style="width: 680px; display: none;">
+        {% csrf_token %}
+        <!-- Question 1 -->
+        <div class="question-box" data-question="{{question.id}}">
+            <h4 id="question-display"></h4>
+            <div class="answer-buttons" info-at="no">
+                <button class="ans_button" data-required="{{question.info_required}}" data-info="{{question.info_at.all}}" data-order="{{question.id}}" type="button" data-value="yes">Yes</button>
+                <button class="ans_button" data-required="{{question.info_required}}" data-info="{{question.info_at.all}}" data-order="{{question.id}}" type="button" data-value="no">No</button>
+                <button class="ans_button maybe_btn" data-required="{{question.info_required}}" data-info="{{question.info_at.all}}" data-order="{{question.id}}" type="button" data-value="maybe" style="display: none;">Maybe</button>
+            </div>
+           <!-- <div class="additional-info info{{question.order}}">
+                <label>Please provide your updated information: <input type="text" name="q{{question.order}}_details"></label>
+            </div>  -->
+            <div class="input-container additional-info info{{question.id}}">
+                <label class="follow-up" for="updated-info"></label>
+                <textarea class="additional-text" id="updated-info{{question.id}}" placeholder=""></textarea>
+                <div class="additional-buttons" style="display: none;">
+                    <button class="ans_button" data-required="{{question.info_required}}" data-order="{{question.id}}" type="button" data-value="Married">Married</button>
+                    <button class="ans_button" data-required="{{question.info_required}}" data-order="{{question.id}}" type="button" data-value="Divorced">Divorced</button>
+                </div>
+                <div class="states-dropdown" style="display: none;">
+                    <select id="states">
+                        <option value="">--Select a state--</option>
+                        {% for state in states %}
+                            <option value="{{ state }}">{{ state }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </div>
+        <!-- Add more questions (up to 10 questions) here... style="display: none;" -->
+        <div class="form-container add-info{{question.id}}" style="display: none;">
+            <div class="form-group">
+                <label for="phone">Phone Number</label>
+                <input type="text" id="phone" name="phone" value="{{user.phone}}">
+            </div>
+
+            <div class="form-group">
+                <label for="email">E-mail address</label>
+                <input type="email" id="email" name="email" value="{{user.email|default:''}}">
+            </div>
+
+            <div class="form-group">
+                <label for="address">Address</label>
+                <input type="text" id="address" name="address" value="{{user.address|default:''}}">
+            </div>
+
+            <div class="form-group">
+                <label for="city">City</label>
+                <input type="text" id="city" name="city" value="{{user.city|default:''}}">
+            </div>
+
+            <div class="form-group">
+                <label for="state">State</label>
+                <select id="state" name="state" data-state="{{user.state}}">
+                    <option value="">--Select a state--</option>
+                    {% for state in states %}
+                        <option value="{{ state }}" {% if state == user.state %}selected{% endif %}>{{ state }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="postal_code">ZIP Code</label>
+                <input type="text" id="postal_code" name="postal_code" value="{{user.postal_code|default:''}}">
+            </div>
+        </div>
+
+        <!-- Navigation Buttons -->
+        <div class="navigation-buttons page-buttons" style="display:none;">
+            <button type="button" id="prevBtn">&larr; Previous</button>
+            <button type="button" id="nextBtn">Next &rarr;</button>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="custom-progress-bar-container" style="display:none;">
+            <div class="custom-progress-bar"></div>
+        </div>
+    </form>
+    <div id="reviewScreen" style="display:none;">
+        <h2>Review Your Answers</h2>
+        <div id="reviewSection" class="sections" style="margin-top: 20px;">
+
+        </div>
+        <h6>Press "Return" to go back and change one of your answers, or "Finish" to submit your questionnaire</h6>
+        <div class="avigation-buttons page-buttons">
+            <button type="button" id="returnBtn" class="prev">Return</button>
+            <button type="button" id="submitBtn" >Finish</button>
+        </div>
+    </div>
+    <div id="finishScreen" class="finish-box page-buttons" style="display:none;">
+        <h2>Thank You for Completing the Questionnaire!</h2>
+        <p>You will receive a copy of your answers via e-mail</p>
+        <div class="avigation-buttons">
+            <button type="submit" id="finishBtn">Finish</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block script %}
+<script>
+    let selectedAnswers = {};
+
+    function showError(message) {
+        if (!$('#error-message').length) {
+            $('<p id="error-message" style="color: red; margin-bottom: 20px;"></p>')
+                .insertBefore('.question-box');
+        }
+        $('#error-message').text(message);
+    }
+
+    // Hide error message
+    function hideError() {
+        $('#error-message').remove();
+    }
+
+    function loadReviewScreen() {
+    // Hide the welcome screen and show the review screen
+
+    // Perform the AJAX request to get review questions
+        questionnaire = "{{questionnaire}}";
+        $.ajax({
+            url: "{% url 'review_questions' %}",
+            type: 'GET',
+            data: {
+                'questionnaire': questionnaire,
+                'csrfmiddlewaretoken': '{{ csrf_token }}'
+            },
+            success: function(response) {
+                // Iterate through each item in the response
+                data = response.data
+                $('#reviewSection').empty();
+                $.each(data, function(index, item) {
+                    childrens = item.childrens
+                    // Build the collapsible section for each item
+
+                    var itemHtml = `
+                        <button class="collapsible"> + ` + item.header + `</button>
+                        <div class="sub-content">
+                            <p class="sub-section">${item.order} ${item.question}</p>
+                            <ul>
+                                <li>${item.yes_no_answer}</li>`;
+
+                    // Add text answer to the list if available
+                    if (item.text_answer) {
+                        itemHtml += `<li>${item.text_answer}</li>`;
+                    }
+
+                    itemHtml += `</ul>`;
+
+                    // Handle child questions if present
+                    if (item.childrens && item.childrens.length > 0) {
+                        $.each(childrens, function(idx, child) {
+                            itemHtml += `
+                            <p class="sub-section">${item.order}${child.question__order} ${child.question__question_text}</p>
+                            <ul>
+                                <li>${child.yes_no_answer}</li>`;
+
+                            // Add child text answer if available
+                            if (child.text_answer) {
+                                itemHtml += `<li>${child.text_answer}</li>`;
+                            }
+
+                            itemHtml += `</ul>`;
+                        });
+                    }
+
+                    itemHtml += `</div>`;
+
+                    // Append the generated HTML to the review section
+                    $('#reviewSection').append(itemHtml);
+                    $('#reviewScreen').show();
+                    $('#questionnaireForm').hide();
+                });
+            }
+        });
+    }
+
+    function loadNextQuestion(current_id, start, prev, last) {
+
+        const selectedAnswer = $('.answer-buttons button.selected');
+        const yes_no = selectedAnswer.attr("data-value")
+
+        if (current_id == 11) {
+            var textInput = $('.additional-buttons .ans_button.selected').data('value');
+        } else if (current_id == 15) {
+            var textInput = $('#states :selected').val();
+        } else {
+            var textInput = $('.additional-text').val();
+        }
+
+        if ((selectedAnswer.length === 0) && (start == "false") && (prev == "false")) {
+            showError('Please select an answer before proceeding.');
+            return;
+        }
+        hideError();
+
+        questionnaire = "{{questionnaire}}";
+        currentUrl = window.location.href + '?start=' + start + '&currId=' + current_id;
+
+        $.ajax({
+            url: "{% url 'load_questions' %}",
+            type: 'GET',
+            data: {
+                "start": start,
+                "currentId": current_id,
+                "prev": prev,
+                "questionnaire": questionnaire,
+                "yes_no": yes_no,
+                "last": last,
+                "text_ans": textInput,
+                "csrfmiddlewaretoken": "{{ csrf_token }}"
+            },
+            success: function(response) {
+                data = response.data
+
+                if (data.load_review){
+                    loadReviewScreen();
+                }
+                $("#question-display").html(data.question);
+                $(".answer-buttons").attr("info-at", data.info_at);
+                $(".answer-buttons").attr("user-info", data.user_info);
+                $(".answer-buttons").attr("load-order", data.load_order);
+                $(".follow-up").html(data.follow_up);
+                $('#nextBtn').attr("load-order", data.load_order);
+                $('#prevBtn').attr("load-order", data.load_order);
+
+                if (data.options == "3") {
+                    $('.maybe_btn').show();
+                } else {
+                    $('.maybe_btn').hide();
+                }
+
+                if (prev == "true") {
+                    $(`button[type="button"][data-value="${data.yes_no}"]`).addClass("selected")
+                }
+
+                if ((data.has_prev_text) && (start == "false") && (prev == "true")) {
+                    $('.input-container').show();
+                    if (current_id != 12) {
+                        $('.additional-text').val(data.text_ans);
+                    }
+                }
+                if ((current_id == 2) && (data.yes_no == "yes") && (prev == "true")) {
+                    $('.form-container').show();
+                }
+                else if ((current_id == 12) && (prev == "true") && (data.yes_no == "yes")) {
+                    $(`.ans_button[data-value="${data.text_ans}"]`).addClass("selected")
+                } 
+                else {
+                    $('.form-container').hide();
+                }
+                
+
+                console.log(current_id, prev, data.show_married_btn, data.show_states)
+                
+            }
+        });
+    }
+
+    $("#startBtn").click(function(){
+        $("#welcomeScreen").hide();
+        $('#questionnaireForm').show();
+        loadNextQuestion(0, "true", "false", "false")
+        $(".custom-progress-bar-container").show();
+        $(".navigation-buttons").show()
+    })
+
+    $('.answer-buttons button').click(function() {
+        // Remove 'selected' class from all buttons of the current question
+        $(this).siblings().removeClass('selected');
+
+        // Add 'selected' class to the clicked button
+        $(this).addClass('selected');
+
+        // Store selected value (if needed, e.g., in a hidden input)
+        const selectedValue = $(this).data('value').toLowerCase();
+        const additionalDataAt = $(this).attr('data-info').toLowerCase();
+        const additionalDataRequired = $(this).attr('data-required');
+
+        const questionId = $(this).closest('.question-box').attr('data-question');
+        const questionText = $(this).closest('.question-box').find('.question-display').text();
+        const additionalInfo = $(`.info${questionId} textarea`).val() || '';
+        const infoAt = $(this).parent().attr("info-at")
+        const loadOrder = $(this).parent().attr("load-order")
+
+        console.log(loadOrder, selectedValue)
+
+        selectedAnswers[questionId] = {
+            questionText: questionText,
+            answer: selectedValue,
+            additionalInfo: additionalInfo
+        };
+
+        // Show or hide additional info if in additionalDataAt is selected
+        if (infoAt == selectedValue){
+            $('.additional-info').show();
+            if (loadOrder == '1') {
+                $('.form-container').show();
+                $('.additional-text').hide();
+            } 
+            else if (loadOrder == '11') {
+                $('.additional-buttons').show();
+                $('.additional-text').hide();
+            }
+            else if (loadOrder == '15') {
+                $('.states-dropdown').show();
+                $('.additional-text').hide();
+            }
+            else {
+                $('.additional-buttons').hide();
+                $('.additional-text').show();
+                $('.states-dropdown').hide();
+            }
+        } else {
+            $('.additional-info').hide();
+            $('.form-container').hide();
+        }
+    });
+
+    $('#nextBtn').click(function(){
+        $('.input-container').hide()
+        const loadOrder = $(this).attr("load-order");
+
+        $('.form-container').hide();
+
+        loadNextQuestion(loadOrder, "false", "false", "false");
+        $('.ans_button').removeClass('selected');
+        $('.additional-text').val('');
+    })
+
+    $('#prevBtn').click(function(){
+        loadOrder = $(this).attr("load-order")
+        loadNextQuestion(loadOrder, "false", "true", "false");
+        $('.ans_button').removeClass('selected');
+
+        if (loadOrder != '1') {
+            $('.form-container').hide();
+        }
+    })
+
+    $(document).on('click', '.collapsible', function() {
+        // Toggle the "active" class to the clicked button
+        $(this).toggleClass('active');
+
+        // Toggle the sub-content visibility
+        var content = $(this).next('.sub-content');
+
+        if ($(content).css('display') === "block") {
+            $(content).css('display', 'none');
+            updated_sign = $(this).text().replace('-', '+');
+        } else {
+            $(content).css('display', 'block');
+            updated_sign = $(this).text().replace('+', '-');
+        }
+
+        $(this).html(updated_sign)
+    });
+
+    $('#submitBtn').click(function(){
+        $('#questionnaireForm').submit();
+    })
+
+    $('#returnBtn').click(function(){
+        loadNextQuestion(0, "false", "true", "true")
+        $('#reviewScreen').hide();
+        $('#questionnaireForm').show();
+    })
+
+    $('.additional-buttons button').click(function() {
+        // Remove 'selected' class from all buttons of the current question
+        $(this).siblings().removeClass('selected');
+
+        // Add 'selected' class to the clicked button
+        $(this).addClass('selected');
+    });
+
+</script>
+{% endblock %}

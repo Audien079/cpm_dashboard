@@ -35,6 +35,7 @@ class Question(BaseModel):
     info_required = models.BooleanField(default=False)
     info_at = models.ManyToManyField(InfoOption, related_name="info_at_options", blank=True)
     follow_up = models.TextField(null=True, blank=True)
+    load_order = models.IntegerField(null=True, blank=True, unique=True)
 
     def __str__(self):
         return self.question_text
