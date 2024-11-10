@@ -44,39 +44,39 @@ class SignUpView(CreateView):
             return render(request, self.template_name, context={'form': form})
 
 
-class SendQuestionnaire(TemplateView):
-    """
-    Success page to redirect to user
-    """
-    template_name = "user/send_questions.html"
-
-    def get(self, request, *args, **kwargs):
-        questionnaire = UserQuestionnaire.objects.filter(id=self.kwargs.get("pk")).first()
-        if questionnaire.is_completed:
-            return redirect('registered_questionnaire')
-        else:
-            return super().get(request, *args, **kwargs)
-
-    def get_context_data(self, **kwargs):
-        context_data = super().get_context_data(**kwargs)
-        qnr_id = self.kwargs.get("pk")
-        context_data["questions"] = Question.objects.all()
-        context_data["questionnaire"] = qnr_id
-        context_data["sections"] = Question.objects.filter(parent_question__isnull=True).order_by('id')
-        context_data["user"] = UserQuestionnaire.objects.get(id=qnr_id).user
-        context_data["states"] = [
-            "Alabama", "Alaska", "Arizona", "Arkansas", "California", "Colorado",
-            "Connecticut", "Delaware", "Florida", "Georgia", "Hawaii", "Idaho",
-            "Illinois", "Indiana", "Iowa", "Kansas", "Kentucky", "Louisiana",
-            "Maine", "Maryland", "Massachusetts", "Michigan", "Minnesota",
-            "Mississippi", "Missouri", "Montana", "Nebraska", "Nevada",
-            "New Hampshire", "New Jersey", "New Mexico", "New York",
-            "North Carolina", "North Dakota", "Ohio", "Oklahoma", "Oregon",
-            "Pennsylvania", "Rhode Island", "South Carolina", "South Dakota",
-            "Tennessee", "Texas", "Utah", "Vermont", "Virginia", "Washington",
-            "West Virginia", "Wisconsin", "Wyoming"
-        ]
-        return context_data
+# class SendQuestionnaire(TemplateView):
+#     """
+#     Success page to redirect to user
+#     """
+#     template_name = "user/send_questions.html"
+#
+#     def get(self, request, *args, **kwargs):
+#         questionnaire = UserQuestionnaire.objects.filter(id=self.kwargs.get("pk")).first()
+#         if questionnaire.is_completed:
+#             return redirect('registered_questionnaire')
+#         else:
+#             return super().get(request, *args, **kwargs)
+#
+#     def get_context_data(self, **kwargs):
+#         context_data = super().get_context_data(**kwargs)
+#         qnr_id = self.kwargs.get("pk")
+#         context_data["questions"] = Question.objects.all()
+#         context_data["questionnaire"] = qnr_id
+#         context_data["sections"] = Question.objects.filter(parent_question__isnull=True).order_by('id')
+#         context_data["user"] = UserQuestionnaire.objects.get(id=qnr_id).user
+#         context_data["states"] = [
+#             "Alabama", "Alaska", "Arizona", "Arkansas", "California", "Colorado",
+#             "Connecticut", "Delaware", "Florida", "Georgia", "Hawaii", "Idaho",
+#             "Illinois", "Indiana", "Iowa", "Kansas", "Kentucky", "Louisiana",
+#             "Maine", "Maryland", "Massachusetts", "Michigan", "Minnesota",
+#             "Mississippi", "Missouri", "Montana", "Nebraska", "Nevada",
+#             "New Hampshire", "New Jersey", "New Mexico", "New York",
+#             "North Carolina", "North Dakota", "Ohio", "Oklahoma", "Oregon",
+#             "Pennsylvania", "Rhode Island", "South Carolina", "South Dakota",
+#             "Tennessee", "Texas", "Utah", "Vermont", "Virginia", "Washington",
+#             "West Virginia", "Wisconsin", "Wyoming"
+#         ]
+#         return context_data
 
 
 class AdminUsersView(ListView):
@@ -335,9 +335,9 @@ def get_review_questions(request):
     return JsonResponse({"message": "success", "data": output_list})
 
 
-class NewQuestionnaire(TemplateView):
+class SendQuestionnaire(TemplateView):
     """
-    New questionnaire
+    Send questionnaire
     """
     template_name = "user/new_questions.html"
 

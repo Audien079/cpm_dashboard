@@ -138,6 +138,45 @@
 .custom-btn:hover {
     background-color: #3a4b68;
 }
+
+.survey-dropdown select {
+  background-color: #ffffff;
+  color: #202020;
+  border-radius : 7px;
+  padding: 10px;
+  width: 185px;
+  border: none;
+  font-size: 15px;
+  box-shadow: 0 3px 5px rgba(0, 0, 0, 0.2);
+  -webkit-appearance: button;
+  appearance: button;
+  outline: none;
+}
+
+.survey-dropdown::before {
+  content: "\f13a";
+  font-family: FontAwesome;
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 20%;
+  height: 100%;
+  text-align: center;
+  font-size: 28px;
+  line-height: 45px;
+  color: rgba(255, 255, 255, 0.5);
+  background-color: rgba(255, 255, 255, 0.1);
+  pointer-events: none;
+}
+
+.survey-dropdown:hover::before {
+  color: rgba(255, 255, 255, 0.6);
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.survey-dropdown select option {
+  padding: 30px;
+}
 </style>
 {% endblock %}
 {% block content %}
@@ -150,12 +189,12 @@
                     data-bs-target="#activity-tab-pane" type="button" role="tab" aria-controls="activity-tab-pane"
                     aria-selected="true">Recent Activity</button>
             </li>
-            <li class="nav-item" role="presentation">
+            <li class="nav-item" role="presentation" style="display: none">
                 <button class="nav-link" id="upcoming-tasks" data-bs-toggle="tab"
                     data-bs-target="#upcoming-tasks-tab-pane" type="button" role="tab"
                     aria-controls="upcoming-tasks-tab-pane" aria-selected="false">Upcoming Tasks</button>
             </li>
-            <li class="nav-item" role="presentation">
+            <li class="nav-item" role="presentation" style="display: none">
                 <button class="nav-link" id="completed-tasks" data-bs-toggle="tab"
                     data-bs-target="#completed-tasks-tab-pane" type="button" role="tab"
                     aria-controls="completed-tasks-tab-pane" aria-selected="false">Done</button>
@@ -173,21 +212,25 @@
                         <form method="GET">
                             <div id="div_id_search" class="form-group">
                                 <div style="display: flex; gap: 20px;">
-                                    <input type="text" name="search" placeholder="Filter by questionnaire"
-                                        class="textinput textInput form-control" id="id_search">
-                                    <button
-                                        class="btn btn-primary btn-md align-middle btn-block custom-btn">Search</button>
+                                    <div class="survey-dropdown">
+                                        <label for="survey">Filter by Surveys: </label>
+                                        <select id="survey">
+                                            <option value="all">All</option>
+                                            <option value="yes">Yes</option>
+                                            <option value="no">No</option>
+                                        </select>
+                                    </div>
                                 </div>
                             </div>
                         </form>
                     </div>
                 </div>
                 {% endif %}
-                <table class="table" style="background-color: #eceff6 !important">
+                <table id="survey-table" class="table" style="background-color: #eceff6 !important">
                     <thead>
                         <tr>
                             <th class="table-head" style="padding-left: 25px;">Activity</th>
-                            <th class="table-head">Updated?</th>
+                            <th class="table-head">Changes?</th>
                             <th class="table-head">Client</th>
                             <th class="table-head" style="padding-left: 25px;">Date</th>
                         </tr>
@@ -195,13 +238,13 @@
                     <tbody>
                         {% for questionnaire in questionnaires %}
                         <tr>
-                            <td style="padding-left: 25px;" class="table-td">Questionnaire answered</td>
+                            <td style="padding-left: 25px;" class="table-td">Survey answered</td>
                             {% if questionnaire.is_completed %}
-                            <td style="padding-left: 25px;" class="table-td row-items">Yes</td>
+                            <td style="padding-left: 25px;" class="table-td row-items status">Yes</td>
                             {% else %}
-                            <td style="padding-left: 25px;" class="table-td">No</td>
+                            <td style="padding-left: 25px;" class="table-td status">No</td>
                             {% endif %}
-                            <td class="table-td"><a href="{% url 'user_detail' questionnaire.user.id %}">{{questionnaire.user}}</a></td>
+                            <td class="table-td"><a style="text-decoration: none;" href="{% url 'user_detail' questionnaire.user.id %}">{{questionnaire.user}}</a></td>
                             {% if questionnaire.is_completed %}
                             <td style="padding-left: 25px;" class="table-td">{{questionnaire.test_date|date:"m/d/Y"}}</td>
                             {% else %}
@@ -210,7 +253,7 @@
                         </tr>
                         {% empty %}
                         <tr>
-                            <td class="text-center" colspan="4">No Questionnaires Available</td>
+                            <td class="text-center" colspan="4">No Surveys Available</td>
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -484,6 +527,24 @@
 {% block script %}
 <script>
 $(document).ready(function() {
+
+    $('#survey').change(function() {
+        var filterValue = $(this).val();
+
+        // Show all rows initially
+        $('#survey-table tbody tr').show();
+
+        if (filterValue === 'yes') {
+            $('#survey-table tbody tr').filter(function() {
+                return $(this).find('.status').text().toLowerCase() !== 'yes';
+            }).hide();
+        } else if (filterValue === 'no') {
+            $('#survey-table tbody tr').filter(function() {
+                return $(this).find('.status').text().toLowerCase() !== 'no';
+            }).hide();
+        }
+        // If "all" is selected, all rows will remain visible
+    });
 
     const urlParams = new URLSearchParams(window.location.search);
     const done = urlParams.get('done');
