@@ -404,14 +404,19 @@ def load_questions(request):
         user_info = True
         question = Question.objects.get(load_order=1)
     elif prev == "true" and last == "false":
-        question = Question.objects.get(load_order=current_id - 1)
-        prev_answer = Answer.objects.get(user_questionnaire=questionnaire, question=question)
         if current_id == 10:
             last_question = Question.objects.get(load_order=3)
             prev_answer = Answer.objects.get(user_questionnaire=questionnaire,
                                              question=last_question)
             if prev_answer.yes_no_answer.lower() == "no":
                 question = last_question
+            else:
+                question = Question.objects.get(load_order=current_id - 1)
+                prev_answer = Answer.objects.get(user_questionnaire=questionnaire, question=question)
+
+        else:
+            question = Question.objects.get(load_order=current_id - 1)
+            prev_answer = Answer.objects.get(user_questionnaire=questionnaire, question=question)
 
         prev_yes_no = prev_answer.yes_no_answer.lower()
         prev_text_ans = prev_answer.text_answer
@@ -431,7 +436,6 @@ def load_questions(request):
                                              question=question)
             prev_yes_no = prev_answer.yes_no_answer.lower()
             prev_text_ans = prev_answer.text_answer
-            # breakpoint()
             prev_info = prev_answer.question.info_at.first()
             if prev_info:
                 if prev_info.info_at.lower() == prev_yes_no:
@@ -456,6 +460,8 @@ def load_questions(request):
             has_completed = True
             current_yes_no = answer.yes_no_answer.lower()
             current_text = answer.text_answer
+        else:
+            current_yes_no, current_text = None, None
 
         current_date = datetime.now()
         formatted_date = current_date.strftime("%m/%d/%Y")

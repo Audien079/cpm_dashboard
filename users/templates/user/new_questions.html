@@ -373,8 +373,14 @@
         </div>
 
         <!-- Progress Bar -->
-        <div class="custom-progress-bar-container" style="display:none;">
+        <!-- <div class="custom-progress-bar-container" style="display:none;">
             <div class="custom-progress-bar"></div>
+        </div> -->
+        <div class="custom-progress-bar-container" style="display:none;">
+            <div class="custom-progress-bar" id="progress-bar" role="progressbar"
+                 aria-valuemin="0" aria-valuemax="100">
+                <!-- <span id="progress-label">0%</span> -->
+            </div>
         </div>
     </form>
     <div id="reviewScreen" style="display:none;">
@@ -561,7 +567,7 @@
                     $('.states-dropdown').hide();
                     $('.form-container').hide();
                     $('.additional-buttons').hide();
-                    if ((data.yes_no == data.info_at)) {
+                    if ((data.yes_no == data.info_at) && (data.yes_no)) {
                         $('.input-container').show();
                         $('.additional-text').show();
                         $('.additional-text').val(data.current_text);
@@ -611,6 +617,8 @@
                     }
 
                 }
+                
+                updateProgressBar()
             }
         });
     }
@@ -672,6 +680,12 @@
             $('.form-container').hide();
         }
     });
+
+    function updateProgressBar() {
+        curr_load = $('.answer-buttons').attr("load-order");
+            let progressPercentage = (curr_load / 21) * 100;
+            $("#progress-bar").css("width", progressPercentage + "%");
+    }
 
     $('#nextBtn').click(function(){
         $('.input-container').hide()
