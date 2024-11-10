@@ -541,19 +541,76 @@
                         $('.additional-text').val(data.text_ans);
                     }
                 }
+
                 if ((current_id == 2) && (data.yes_no == "yes") && (prev == "true")) {
                     $('.form-container').show();
                 }
                 else if ((current_id == 12) && (prev == "true") && (data.yes_no == "yes")) {
                     $(`.ans_button[data-value="${data.text_ans}"]`).addClass("selected")
-                } 
-                else {
-                    $('.form-container').hide();
+                    $('.additional-buttons').show();
+                    $('.input-container').hide();
                 }
-                
+                else if ((current_id == 16) && (prev == "true") && (data.yes_no == "yes")) {
+                    $('.additional-buttons').hide();
+                    $(`.ans_button[data-value="${data.yes_no}"]`).addClass("selected")
+                    $('.states-dropdown').show()
+                    $('.additional-text').hide();
+                    $(`#states [value='${data.text_ans}']`).attr('selected', 'true')
+                }
+                else {
+                    $('.states-dropdown').hide();
+                    $('.form-container').hide();
+                    $('.additional-buttons').hide();
+                    if ((data.yes_no == data.info_at)) {
+                        $('.input-container').show();
+                        $('.additional-text').show();
+                        $('.additional-text').val(data.current_text);
+                    } else {
+                        $('.input-container').hide();
+                    }
+                }
 
-                console.log(current_id, prev, data.show_married_btn, data.show_states)
-                
+                if ((data.has_completed) && (prev == "false")) {
+
+                    if (start == "false") {
+                        $('.input-container').show();
+                        if (current_id != 12) {
+                            $('.additional-text').val(data.current_text);
+                        }
+                    }
+
+                    if ((current_id == 0) && (data.current_yes_no == "yes")) {
+                        $(`.ans_button[data-value="${data.current_yes_no}"]`).addClass("selected")
+                        $('.form-container').show();
+                    }
+                    else if ((current_id == 10) && (data.current_yes_no == "yes")) {
+                        $('.additional-buttons').show();
+                        $(`.ans_button[data-value="${data.current_yes_no}"]`).addClass("selected");
+                        $('.input-container').show();
+                        $('.additional-text').hide();
+                        $(`.ans_button[data-value="${data.current_text}"]`).addClass("selected");
+                    }
+                    else if ((current_id == 14) && (data.current_yes_no == "yes")) {
+                        $('.additional-buttons').hide();
+                        $(`.ans_button[data-value="${data.current_yes_no}"]`).addClass("selected")
+                        $('.states-dropdown').show()
+                        $('.additional-text').hide();
+                        $(`#states [value='${data.current_text}']`).attr('selected', 'true')
+                    }
+                    else {
+                        $('.additional-buttons').hide();
+                        $('.states-dropdown').hide()
+                        $(`.ans_button[data-value="${data.current_yes_no}"]`).addClass("selected")
+                        if ((data.current_yes_no == data.info_at)) {
+                            $('.input-container').show();
+                            $('.additional-text').show();
+                            $('.additional-text').val(data.current_text);
+                        } else {
+                            $('.input-container').hide();
+                        }
+                    }
+
+                }
             }
         });
     }
@@ -583,8 +640,6 @@
         const additionalInfo = $(`.info${questionId} textarea`).val() || '';
         const infoAt = $(this).parent().attr("info-at")
         const loadOrder = $(this).parent().attr("load-order")
-
-        console.log(loadOrder, selectedValue)
 
         selectedAnswers[questionId] = {
             questionText: questionText,

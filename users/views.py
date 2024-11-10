@@ -382,6 +382,7 @@ def load_questions(request):
     has_prev_text = False
     show_married_btn = False
     show_states = False
+    has_completed = False
 
     if current_id != 0 and prev == "false":
         current_question = Question.objects.get(load_order=current_id)
@@ -430,7 +431,8 @@ def load_questions(request):
                                              question=question)
             prev_yes_no = prev_answer.yes_no_answer.lower()
             prev_text_ans = prev_answer.text_answer
-            prev_info = prev_answer.info_at.first()
+            # breakpoint()
+            prev_info = prev_answer.question.info_at.first()
             if prev_info:
                 if prev_info.info_at.lower() == prev_yes_no:
                     has_prev_text = True
@@ -447,6 +449,13 @@ def load_questions(request):
             info_at = question.info_at.first().info_at
         else:
             info_at = ""
+
+        answer = Answer.objects.filter(user_questionnaire=questionnaire,
+                                       question=question).first()
+        if answer:
+            has_completed = True
+            current_yes_no = answer.yes_no_answer.lower()
+            current_text = answer.text_answer
 
         current_date = datetime.now()
         formatted_date = current_date.strftime("%m/%d/%Y")
@@ -470,7 +479,10 @@ def load_questions(request):
             "options": question.options,
             "has_prev_text": has_prev_text,
             "show_married_btn": show_married_btn,
-            "show_states": show_states
+            "show_states": show_states,
+            "has_completed": has_completed,
+            "current_yes_no": current_yes_no,
+            "current_text": current_text
         }
 
     else:
