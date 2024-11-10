@@ -1,5 +1,5 @@
 from django.contrib import admin
-from users.models import User, Task
+from users.models import User, Task, Setting
 
 
 @admin.register(User)
@@ -20,3 +20,12 @@ class TaskAdmin(admin.ModelAdmin):
 
     list_display = ["name", "client", "due_date"]
     search_fields = ["name", "client"]
+
+
+@admin.register(Setting)
+class SettingAdmin(admin.ModelAdmin):
+    """
+    Setting data view in admin panel
+    """
+
+    list_display = ["first_survey_date", "second_survey_date", "send_followups", "follow_cycle"]

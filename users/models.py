@@ -57,3 +57,16 @@ class Task(BaseModel):
 
     def __str__(self):
         return self.name
+
+
+class Setting(models.Model):
+    """
+    Settings model
+    """
+    first_survey_date = models.CharField(max_length=10, null=True, blank=True)
+    second_survey_date = models.CharField(max_length=10, null=True, blank=True)
+    send_followups = models.BooleanField(default=False)
+    follow_cycle = models.IntegerField(null=True, blank=True)
+
+    def __str__(self):
+        return "survey settings"

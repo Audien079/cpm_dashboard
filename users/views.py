@@ -12,7 +12,7 @@ from django.http import JsonResponse
 from django.views.generic import TemplateView, View, ListView
 from dashboard.models import UserQuestionnaire, Question, Answer, Activity
 from dashboard.utils import email_questionnaire
-from users.models import User
+from users.models import User, Setting
 from users.utils import is_valid_email
 
 
@@ -207,6 +207,64 @@ def modify_user_phone(request):
 
 
 @require_POST
+def modify_followup(request):
+    """
+    Modify user phone
+    """
+    if request.method != "POST" and not request.is_ajax():
+        return JsonResponse({"message": "Request method is not valid"})
+
+    status = request.POST.get("status")
+
+    setting = Setting.objects.first()
+    if status == 'yes':
+        setting.send_followups = True
+    else:
+        setting.send_followups = False
+
+    setting.save()
+    return JsonResponse({"message": "success", "data": "Followup status updated"})
+
+
+@require_POST
+def modify_follow_cycle(request):
+    """
+    Modify follow cycle
+    """
+    if request.method != "POST" and not request.is_ajax():
+        return JsonResponse({"message": "Request method is not valid"})
+
+    cycle = request.POST.get("cycle")
+
+    setting = Setting.objects.first()
+    setting.follow_cycle = int(cycle)
+
+    setting.save()
+    return JsonResponse({"message": "success", "data": "Followup cycle updated"})
+
+
+@require_POST
+def modify_survey_date(request):
+    """
+    Modify survey date
+    """
+    if request.method != "POST" and not request.is_ajax():
+        return JsonResponse({"message": "Request method is not valid"})
+
+    survey_date = request.POST.get("survey_date")
+    survey_no = request.POST.get("survey_no")
+
+    setting = Setting.objects.first()
+    if survey_no == "1":
+        setting.first_survey_date = survey_date
+    else:
+        setting.second_survey_date = survey_date
+
+    setting.save()
+    return JsonResponse({"message": "success", "data": "Survey date updated"})
+
+
+@require_POST
 def save_questions(request):
     """
     Save questions
@@ -360,6 +418,19 @@ class SendQuestionnaire(TemplateView):
             "Tennessee", "Texas", "Utah", "Vermont", "Virginia", "Washington",
             "West Virginia", "Wisconsin", "Wyoming"
         ]
+        return context_data
+
+
+class SettingsPage(TemplateView):
+    """
+    Settings page
+    """
+    template_name = "users/settings.html"
+
+    def get_context_data(self, **kwargs):
+        context_data = super().get_context_data(**kwargs)
+        setting = Setting.objects.first()
+        context_data["setting"] = setting
         return context_data
 
 
